@@ -21,8 +21,9 @@ spring:
 shiro:
     filter-rules:
         - /swagger-ui.html==>anon
-        - /swagger-resources/**==>anon
+        - /swagger-resources/**/**==>anon
         - //webjars/**==>anon
         - /v2/**==>anon
         - /user/login/**==>anon
         - /user/queryAll/**==>anon
+        
