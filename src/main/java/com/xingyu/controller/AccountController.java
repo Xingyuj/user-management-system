@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +22,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
 import com.xingyu.auth.JWTUtil;
 import com.xingyu.config.BaseResponse;
+import com.xingyu.model.SysRole;
 import com.xingyu.model.UserAccount;
 import com.xingyu.service.UserAccountService;
 
@@ -117,16 +119,27 @@ public class AccountController {
 
 	@PostMapping("/{id}/roles")
 	@RequiresPermissions("userAccount:update")
-	public BaseResponse<String> assignAccountRole(@PathVariable long id, UserAccount account) {
-		userAccountService.saveAccount(account);
-		return BaseResponse.successWithData("update success");
+	public BaseResponse<String> assignAccountRole(@PathVariable long id, @ApiIgnore SysRole role) {
+		UserAccount savedAccount = userAccountService.findById(id);
+		savedAccount.getRoleList().add(role);
+		userAccountService.saveAccount(savedAccount);
+		return BaseResponse.successWithData("Assign Role Success");
 	}
 
 	@DeleteMapping("/{id}/roles")
 	@RequiresPermissions("userAccount:update")
-	public BaseResponse<String> removeAccountRole(UserAccount account) {
-		userAccountService.saveAccount(account);
-		return BaseResponse.successWithData("update success");
+	public BaseResponse<String> removeAccountRole(@PathVariable long id, @ApiIgnore SysRole role) {
+		UserAccount savedAccount = userAccountService.findById(id);
+		SysRole roleToBeRemoved = null;
+		for (SysRole sysRole : savedAccount.getRoleList()) {
+			if (sysRole.getId() == role.getId()
+					|| sysRole.getRole().equalsIgnoreCase(role.getRole())) {
+				roleToBeRemoved = sysRole;
+			}
+		}
+		savedAccount.getRoleList().remove(roleToBeRemoved);
+		userAccountService.saveAccount(savedAccount);
+		return BaseResponse.successWithData("Remove Role Success");
 	}
 
 	@DeleteMapping("/{id}")
