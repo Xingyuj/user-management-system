@@ -1,6 +1,7 @@
 package com.xingyu.controller;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +27,11 @@ import com.xingyu.model.UserAccount;
 import com.xingyu.service.UserAccountService;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import springfox.documentation.annotations.ApiIgnore;
 
 @Api(value = "Authenticator", protocols = "http")
@@ -48,7 +53,8 @@ public class AccountController {
 		builder.excludeFieldsWithoutExposeAnnotation();
 		this.gson = builder.create();
 	}
-
+	
+    @ApiOperation(value = "Authentication", notes = "get JWT token from authentication service")
 	@PostMapping("/login")
 	public BaseResponse<String> login(@RequestParam("username") String username,
 			@RequestParam("password") String password) {
@@ -60,11 +66,14 @@ public class AccountController {
 		}
 	}
 
-	/**
-	 * list all users' account
-	 * 
-	 * @return
-	 */
+	@ApiOperation(
+			value = "list all users",
+			notes = "list all users",
+			produces="application/json",
+			consumes="application/json")
+    @ApiResponses({
+            @ApiResponse(code = 100, message = "Data Exception")
+    })
 	@GetMapping("")
 	@RequiresPermissions("userAccount:list")
 	public BaseResponse<String> listAccounts() {
@@ -74,10 +83,19 @@ public class AccountController {
 			}.getType());
 		} catch (Exception e) {
 			e.printStackTrace();
+			return new BaseResponse<String>(100, "Data Exception", null);
 		}
 		return BaseResponse.successWithData(element.getAsJsonArray().toString());
 	}
 
+	@ApiOperation(
+			value = "Create Account",
+			notes = "Create Account"
+	)
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "username", value = "username", required = true, dataType = "String", paramType = "query"),
+			@ApiImplicitParam(name = "password", value = "password", required = true, dataType = "String", paramType = "query"),
+	})
 	@PostMapping("")
 	@RequiresPermissions("userAccount:create")
 	public BaseResponse<String> createAccount(UserAccount account) {
@@ -86,6 +104,16 @@ public class AccountController {
 				"resource id: " + userAccountService.findByUsername(account.getUsername()).getId());
 	}
 
+	@ApiOperation(
+			value = "Put update account",
+			notes = "Put update account, could replace the entity"
+	)
+	@ApiResponses({
+			@ApiResponse(code = 201, message = "Create Success"),
+			@ApiResponse(code = 202, message = "Overwrite Success"),
+			@ApiResponse(code = 401, message = "Unauthorised"),
+			@ApiResponse(code = 500, message = "Internal Server Error")
+	})
 	@PutMapping("/{id}")
 	@RequiresPermissions("userAccount:update")
 	public BaseResponse<String> putAccount(@PathVariable Long id, @ApiIgnore UserAccount account) {
@@ -106,6 +134,14 @@ public class AccountController {
 		}
 	}
 
+	@ApiOperation(
+			value = "Patch update Account",
+			notes = "Patch update Account"
+	)
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "username", value = "username", required = true, dataType = "String", paramType = "query"),
+			@ApiImplicitParam(name = "password", value = "password", required = true, dataType = "String", paramType = "query"),
+	})
 	@PatchMapping("/{id}")
 	@RequiresPermissions("userAccount:update")
 	public BaseResponse<String> patAccount(@PathVariable Long id, @ApiIgnore UserAccount account) {
@@ -117,6 +153,14 @@ public class AccountController {
 		return new BaseResponse<String>(202, "Overwrite Success", "resource id: " + id);
 	}
 
+	@ApiOperation(
+			value = "Assigne role to user",
+			notes = "Assigne role to user"
+	)
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "id", value = "id", required = true, dataType = "String", paramType = "query"),
+			@ApiImplicitParam(name = "role", value = "role name", required = false, dataType = "String", paramType = "query"),
+	})
 	@PostMapping("/{id}/roles")
 	@RequiresPermissions("userAccount:update")
 	public BaseResponse<String> assignAccountRole(@PathVariable long id, @ApiIgnore SysRole role) {
@@ -126,6 +170,14 @@ public class AccountController {
 		return BaseResponse.successWithData("Assign Role Success");
 	}
 
+	@ApiOperation(
+			value = "remove a role from user",
+			notes = "remove a role from user"
+	)
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "id", value = "id", required = true, dataType = "String", paramType = "query"),
+			@ApiImplicitParam(name = "role", value = "role name", required = false, dataType = "String", paramType = "query"),
+	})
 	@DeleteMapping("/{id}/roles")
 	@RequiresPermissions("userAccount:update")
 	public BaseResponse<String> removeAccountRole(@PathVariable long id, @ApiIgnore SysRole role) {
@@ -142,6 +194,13 @@ public class AccountController {
 		return BaseResponse.successWithData("Remove Role Success");
 	}
 
+	@ApiOperation(
+			value = "delete a user",
+			notes = "delete a user"
+	)
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "id", value = "id", required = true, dataType = "String", paramType = "query"),
+	})
 	@DeleteMapping("/{id}")
 	@RequiresPermissions("userAccount:delete")
 	public BaseResponse<String> deleteAccount(@PathVariable long id) {
@@ -149,6 +208,13 @@ public class AccountController {
 		return BaseResponse.successWithData("delete success");
 	}
 
+	@ApiOperation(
+			value = "get a user account info",
+			notes = "get a user account info"
+	)
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "id", value = "id", required = true, dataType = "String", paramType = "query"),
+	})
 	@GetMapping("/{id}")
 	@RequiresPermissions("userAccount:read")
 	public BaseResponse<String> readAccount(@PathVariable long id) {
