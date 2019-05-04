@@ -1,7 +1,9 @@
 package com.xingyu.controller;
 
 import org.apache.shiro.authz.UnauthorizedException;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,5 +36,26 @@ public class AccountController {
             throw new UnauthorizedException();
         }
     }
+    
+    /**
+     * list all users' account
+     * @return
+     */
+    @GetMapping("/accounts")
+//    @RequiresPermissions("userAccount:list")
+    public BaseResponse<String> listAccounts(){
+        return BaseResponse.successWithData("aaaaacount");
+    }
+    
+    /**
+     * list all users' account
+     * @return
+     */
+    @PostMapping("/accounts")
+//    @RequiresPermissions("userAccount:create")
+    public BaseResponse<String> createAccount(){
+        return BaseResponse.successWithData("aaaaacount");
+    }
+    
     
 }
