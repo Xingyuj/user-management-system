@@ -46,7 +46,7 @@ public class SwaggerConfiguration {
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title("Ethan XingyuJi's UMS API")
-                .description("A code challenge demo")
+                .description("A restful api demo, repo can be found here https://github.com/Xingyuj/user-management-system")
                 .version("1.0")
                 .build();
     }
