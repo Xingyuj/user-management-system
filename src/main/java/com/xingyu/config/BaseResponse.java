@@ -8,7 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @ApiModel(description = "Response Object")
 public class BaseResponse<T> {
-    private static final int SUCCESS_CODE = 0;
+    private static final int SUCCESS_CODE = 200;
     private static final String SUCCESS_MESSAGE = "success";
 
     @ApiModelProperty(value = "Response Code", name = "code", required = true, example = "" + SUCCESS_CODE)
@@ -20,7 +20,7 @@ public class BaseResponse<T> {
     @ApiModelProperty(value = "Response Data", name = "data")
     private T data;
 
-    private BaseResponse(int code, String msg, T data) {
+    public BaseResponse(int code, String msg, T data) {
         this.code = code;
         this.msg = msg;
         this.data = data;
