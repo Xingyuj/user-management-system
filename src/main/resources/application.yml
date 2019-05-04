@@ -17,3 +17,12 @@ spring:
          hibernate:
             dialect: org.hibernate.dialect.PostgreSQLDialect
             temp.use_jdbc_metadata_defaults: false
+
+shiro:
+    filter-rules:
+        - /swagger-ui.html==>anon
+        - /swagger-resources/**==>anon
+        - //webjars/**==>anon
+        - /v2/**==>anon
+        - /user/login/**==>anon
+        - /user/queryAll/**==>anon
