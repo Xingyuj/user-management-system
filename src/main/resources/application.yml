@@ -1,0 +1,19 @@
+spring:
+    datasource:
+      url: jdbc:postgresql://localhost:5432/postgres?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=true
+      username: xingyuji
+      password: 
+      #schema: database/import.sql
+      #sql-script-encoding: utf-8
+      driver-class-name: org.postgresql.Driver
+
+    jpa:
+      database: postgresql
+      show-sql: true
+      hibernate:
+        ddl-auto: update
+      properties:
+         
+         hibernate:
+            dialect: org.hibernate.dialect.PostgreSQLDialect
+            temp.use_jdbc_metadata_defaults: false
