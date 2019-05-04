@@ -1,6 +1,7 @@
 package com.xingyu.model;
 
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -11,6 +12,7 @@ public class Address {
     @Id
     @GeneratedValue
     private Long id;
+    @Column(unique =true)
     private String type;
     private String postcode;
     private String state;

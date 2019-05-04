@@ -8,7 +8,8 @@ import java.util.List;
 
 @Entity
 public class SysRole {
-    @Id@GeneratedValue
+    @Id
+    @GeneratedValue
     private Long id;
     @Expose
     private String role;
