@@ -144,7 +144,7 @@ public class AccountController {
 	})
 	@PatchMapping("/{id}")
 	@RequiresPermissions("userAccount:update")
-	public BaseResponse<String> patAccount(@PathVariable Long id, @ApiIgnore UserAccount account) {
+	public BaseResponse<String> patchAccount(@PathVariable Long id, @ApiIgnore UserAccount account) {
 		UserAccount savedAccount = userAccountService.findById(id);
 		savedAccount.setPassword(account.getPassword());
 		savedAccount.setUsername(account.getUsername());
