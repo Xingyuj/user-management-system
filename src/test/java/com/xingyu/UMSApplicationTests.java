@@ -36,7 +36,49 @@ public class UMSApplicationTests {
         params.add("password", "admin");
         this.mockMvc.perform(MockMvcRequestBuilders.post("/login").params(params))
         	.andExpect(status().isOk())
-        	.andExpect(jsonPath( "$.data").doesNotExist());
+        	.andExpect(jsonPath( "$.data").exists());
+    }
+    
+    @Test
+    public void adminShouldBeAbleToListUsers() throws Exception {
+        this.mockMvc.perform(MockMvcRequestBuilders.get("/users").header("Authorization",""))
+        	.andExpect(status().isOk())
+        	.andExpect(jsonPath( "$.data").exists());
+    }
+
+    @Test
+    public void adminShouldBeAbleToCreateUser() throws Exception {
+    	//TODO:
+    }
+    
+    @Test
+    public void adminShouldBeAbleToReadUser() throws Exception {
+    	//TODO:
+    }
+    
+    @Test
+    public void adminShouldBeAbleToUpdateUser() throws Exception {
+    	//TODO:
+    }
+    
+    @Test
+    public void adminShouldBeAbleToAssignRoleAdmin() throws Exception {
+    	//TODO:
+    }
+    
+    @Test
+    public void adminShouldBeAbleToAssignRoleUser() throws Exception {
+    	//TODO:
+    }
+    
+    @Test
+    public void userShouldAbleToReadOwnProfile() throws Exception {
+    	//TODO:
+    }
+    
+    @Test
+    public void userShouldAbleToDeleteOwnProfile() throws Exception {
+    	//TODO:
     }
 
 }
