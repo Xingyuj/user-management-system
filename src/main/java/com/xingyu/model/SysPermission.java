@@ -10,27 +10,32 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 
+import com.google.gson.annotations.Expose;
+
 @Entity
 public class SysPermission implements Serializable {
 	private static final long serialVersionUID = -3437087265530773875L;
-	@Id@GeneratedValue
-    private Integer id;
+	@Id
+	@GeneratedValue
+    private Long id;
+	@Expose
     private String name;
+	@Expose
     private String permission;
     
     @ManyToMany
     @JoinTable(name="SysRolePermission",joinColumns={@JoinColumn(name="permissionId")},inverseJoinColumns={@JoinColumn(name="roleId")})
     private List<SysRole> roles;
+    
+    public Long getId() {
+		return id;
+	}
 
-    public Integer getId() {
-        return id;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
+	public String getName() {
         return name;
     }
 

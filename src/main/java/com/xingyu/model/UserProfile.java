@@ -14,20 +14,25 @@ import javax.persistence.OrderBy;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.google.gson.annotations.Expose;
+
 @Entity
 public class UserProfile {
 	@Id
     @GeneratedValue
-    private Integer id;
+    private Long id;
 	
 	@OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "uid")
     private UserAccount account;
-	
+	@Expose
 	private String firstname;
+	@Expose
 	private String lastname;
+	@Expose
 	@Temporal(TemporalType.DATE)
 	private Date dob;
+	@Expose
 	private String email;
 	
     @OneToMany(cascade = CascadeType.ALL)
@@ -35,10 +40,10 @@ public class UserProfile {
     @OrderBy("id asc")
     private Set<Address> addresses;
     
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 	public UserAccount getAccount() {

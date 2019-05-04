@@ -1,13 +1,18 @@
 package com.xingyu.model;
 
 import javax.persistence.*;
+
+import com.google.gson.annotations.Expose;
+
 import java.util.List;
 
 @Entity
 public class SysRole {
     @Id@GeneratedValue
-    private Integer id;
+    private Long id;
+    @Expose
     private String role;
+    @Expose
     private String description;
 
     @ManyToMany(fetch= FetchType.EAGER)
@@ -18,15 +23,15 @@ public class SysRole {
     @JoinTable(name="SysUserRole",joinColumns={@JoinColumn(name="roleId")},inverseJoinColumns={@JoinColumn(name="uid")})
     private List<UserAccount> userAccounts;
 
-    public Integer getId() {
-        return id;
-    }
+    public Long getId() {
+		return id;
+	}
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public String getRole() {
+	public String getRole() {
         return role;
     }
 
