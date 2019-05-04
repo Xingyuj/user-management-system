@@ -24,7 +24,7 @@ public class UserAccount implements Serializable {
 	private String password;
 	
 	@OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "profile_id", referencedColumnName = "uid")
+    @JoinColumn(name = "profile_id")
     private UserProfile profile;
 
     private String salt;
