@@ -1,6 +1,9 @@
 package com.xingyu.auth;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
+import javax.servlet.Filter;
 import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
 import org.apache.shiro.mgt.DefaultSubjectDAO;
 import org.apache.shiro.mgt.SecurityManager;
@@ -18,9 +21,16 @@ import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 public class ShiroConfig {
     @Bean("shiroFilter")
 	public ShiroFilterFactoryBean shirFilter(SecurityManager securityManager) {
-
         ShiroFilterFactoryBean factoryBean = new ShiroFilterFactoryBean();
-        //TODO:
+        Map<String, Filter> filterMap = new HashMap<>();
+        filterMap.put("jwt", new JWTFilter());
+        factoryBean.setFilters(filterMap);
+        factoryBean.setSecurityManager(securityManager);
+        factoryBean.setUnauthorizedUrl("/401");
+        Map<String, String> filterRuleMap = new HashMap<>();
+        filterRuleMap.put("/**", "jwt");
+        filterRuleMap.put("/401", "anon");
+        factoryBean.setFilterChainDefinitionMap(filterRuleMap);
         return factoryBean;
 	}
 
