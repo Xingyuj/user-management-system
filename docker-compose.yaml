@@ -1,0 +1,30 @@
+version: '3'
+services:
+  postgres:
+    container_name: xingyu-postgres
+    restart: always
+    image: postgres:11
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: xingyuji
+      PGDATA: /var/lib/postgresql/data/pgdata
+    networks:
+      - xingyu-network
+    
+  web:
+    image: xingyuji/xingyu-ums-image:release
+    container_name: xingyu-ums
+    hostname: xingyu-ums
+    ports:
+      - 8080:8080
+    volumes:
+      - ./web/data_dir:/xingyu-ums/data_dir
+      - ./web/logs:/xingyu-ums/logs
+    restart: unless-stopped
+    links:
+      - postgres:postgres
+    networks:
+      - xingyu-network
+networks:
+  xingyu-network:
