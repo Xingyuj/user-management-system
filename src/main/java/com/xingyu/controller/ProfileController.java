@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,7 +26,9 @@ import com.xingyu.model.Address;
 import com.xingyu.model.SysRole;
 import com.xingyu.model.UserProfile;
 import com.xingyu.model.UserProfile;
+import com.xingyu.service.UserAccountService;
 import com.xingyu.service.UserProfileService;
+import com.xingyu.service.impl.UserAccountServiceImpl;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -41,6 +44,7 @@ import springfox.documentation.annotations.ApiIgnore;
 public class ProfileController {
 
     private UserProfileService userProfileService;
+	private UserAccountService userAccountService;
 	private Gson gson;
 
     @Autowired
@@ -48,6 +52,12 @@ public class ProfileController {
         this.userProfileService = userProfileService;
     }
     
+	@Autowired
+	public void setUserAccountService(UserAccountService userAccountService) {
+		this.userAccountService = userAccountService;
+	}
+    
+    @ApiIgnore
     @GetMapping("/401")
     public BaseResponse<String> unauth() {
         return BaseResponse.failWithCodeAndMsg(401, "unauthorized");
@@ -95,7 +105,7 @@ public class ProfileController {
 	})
 	@PostMapping("")
 	@RequiresPermissions("userProfile:create")
-	public BaseResponse<String> createProfile(UserProfile profile) {
+	public BaseResponse<String> createProfile(@ApiIgnore UserProfile profile) {
 		userProfileService.saveProfile(profile);
 		return new BaseResponse<String>(201, "Create Success",null);
 	}
@@ -113,7 +123,7 @@ public class ProfileController {
 			@ApiImplicitParam(name = "type", value = "type", required = false, dataType = "String", paramType = "query"),
 	})
 	@PostMapping("/{id}/addresses")
-	@RequiresPermissions("userProfile:create")
+	@RequiresPermissions("userProfile:update")
 	public BaseResponse<String> createProfileAddress(@PathVariable Long id, @ApiIgnore Address address) {
 		UserProfile profile = userProfileService.findById(id);
 		profile.getAddresses().add(address);
@@ -134,7 +144,7 @@ public class ProfileController {
 		@ApiImplicitParam(name = "type", value = "type", required = false, dataType = "String", paramType = "query"),
 	})
 	@PatchMapping("/{id}/addresses")
-	@RequiresPermissions("userProfile:create")
+	@RequiresPermissions("userProfile:update")
 	public BaseResponse<String> updateProfileAddress(@PathVariable Long id, @ApiIgnore Address address) {
 		UserProfile profile = userProfileService.findById(id);
 		for (Address savedAddress : profile.getAddresses()) {
@@ -158,7 +168,7 @@ public class ProfileController {
 		@ApiImplicitParam(name = "type", value = "address type", required = true, dataType = "String", paramType = "query"),
 	})
 	@DeleteMapping("/{id}/addresses")
-	@RequiresPermissions("userProfile:create")
+	@RequiresPermissions("userProfile:update")
 	public BaseResponse<String> removeProfileAddress(@PathVariable Long id, @ApiIgnore Address address) {
 		UserProfile profile = userProfileService.findById(id);
 		Address addressToBeRemoved = null;
@@ -225,28 +235,45 @@ public class ProfileController {
 			value = "delete a profile",
 			notes = "delete a profile"
 	)
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "id", value = "id", required = true, dataType = "String", paramType = "query"),
-	})
 	@DeleteMapping("/{id}")
 	@RequiresPermissions("userProfile:delete")
-	public BaseResponse<String> deleteProfile(@PathVariable long id) {
-		userProfileService.deleteProfile(id);
-		return BaseResponse.successWithData("delete success");
+	public BaseResponse<String> deleteProfile(@PathVariable long id, @RequestHeader(value="Authorization") String authorizationHeader) {
+		UserProfile profile = userProfileService.findById(id);
+		String currentUsername = JWTUtil.getUsername(authorizationHeader);
+		boolean isAdmin = false;
+		for (SysRole role : userAccountService.findByUsername(currentUsername).getRoleList()) {
+			if("admin".equalsIgnoreCase(role.getRole())) {
+				isAdmin = true;
+			}
+		}
+		if(isAdmin || profile.getAccount().getUsername().equalsIgnoreCase(JWTUtil.getUsername(authorizationHeader))){
+			userProfileService.deleteProfile(id);
+			return BaseResponse.successWithData("Resource Deleted");
+		} else {
+			return BaseResponse.failWithCodeAndMsg(401, "Unauthorised: You dont have permission to delete other people's profile");
+		}
 	}
 
 	@ApiOperation(
 			value = "get a user profile info",
 			notes = "get a user profile info"
 	)
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "id", value = "id", required = true, dataType = "String", paramType = "query"),
-	})
 	@GetMapping("/{id}")
 	@RequiresPermissions("userProfile:read")
-	public BaseResponse<String> readProfile(@PathVariable long id) {
-		System.out.println(gson.toJson(userProfileService.findById(id).toString()));
-		return BaseResponse.successWithData(gson.toJson(userProfileService.findById(id)));
+	public BaseResponse<String> readProfile(@PathVariable long id, @RequestHeader(value="Authorization") String authorizationHeader) {
+		UserProfile profile = userProfileService.findById(id);
+		String currentUsername = JWTUtil.getUsername(authorizationHeader);
+		boolean isAdmin = false;
+		for (SysRole role : userAccountService.findByUsername(currentUsername).getRoleList()) {
+			if("admin".equalsIgnoreCase(role.getRole())) {
+				isAdmin = true;
+			}
+		}
+		if(isAdmin || profile.getAccount().getUsername().equalsIgnoreCase(JWTUtil.getUsername(authorizationHeader))){
+			return BaseResponse.successWithData(gson.toJson(userProfileService.findById(id)));
+		} else {
+			return BaseResponse.failWithCodeAndMsg(401, "Unauthorised: You dont have permission to read other people's profile");
+		}
 	}
 
 }
