@@ -16,17 +16,17 @@ import com.xingyu.service.UserAccountService;
 @Service
 public class UserAccountServiceImpl implements UserAccountService {
     @Resource
-    private UserAccountDao userDao;
+    private UserAccountDao userAccountDao;
     
     @Override
     public UserAccount findByUsername(String username) {
-        return userDao.findByUsername(username);
+        return userAccountDao.findByUsername(username);
     }
     
     @Override
     public boolean saveAccount(UserAccount account) {
     	try {
-    		userDao.save(account);
+    		userAccountDao.save(account);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
@@ -37,7 +37,7 @@ public class UserAccountServiceImpl implements UserAccountService {
     @Override
     public boolean deleteAccount(Long id) {
     	try {
-    		userDao.deleteById(id);
+    		userAccountDao.deleteById(id);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
@@ -47,14 +47,14 @@ public class UserAccountServiceImpl implements UserAccountService {
     
     @Override
     public ArrayList<UserAccount> findAll() {
-    	ArrayList<UserAccount> arr = Lists.newArrayList(userDao.findAll());
+    	ArrayList<UserAccount> arr = Lists.newArrayList(userAccountDao.findAll());
     	System.out.println(arr);
-        return Lists.newArrayList(userDao.findAll());
+        return Lists.newArrayList(userAccountDao.findAll());
     }
 
 	@Override
 	public UserAccount findById(long id) {
-        return userDao.findById(id).get();
+        return userAccountDao.findById(id).get();
 	}
     
 }
