@@ -1,7 +1,5 @@
-INSERT INTO user_account (id,username,password,salt) VALUES ('1', 'admin', 'admin', '8d78869f470951332959580424d4bf4f');
-INSERT INTO user_account (id,username,password,salt) VALUES ('2', 'ethan', 'ethan', '95133298d78869f40424d4bf4f705958');
-INSERT INTO user_profile (id,uid,firstname,lastname,dob,email) VALUES ('1', '1', 'Tirion','Fordring','1899-1-1','tirion@gmail.com');
-INSERT INTO user_profile (id,uid,firstname,lastname,dob,email) VALUES ('2', '2', 'Ethan','Lanister','1889-2-2','ethan@gmail.com');
+INSERT INTO user_account (id,username,password,salt,firstname,lastname,dob,email) VALUES ('1', 'admin', 'admin', '8d78869f470951332959580424d4bf4f', 'Tirion','Fordring','1899-1-1','tirion@gmail.com');
+INSERT INTO user_account (id,username,password,salt,firstname,lastname,dob,email) VALUES ('2', 'ethan', 'ethan', '95133298d78869f40424d4bf4f705958', 'Ethan','Lanister','1889-2-2','ethan@gmail.com');
 INSERT INTO address (id,profile_id,type,city,postcode,state,street) VALUES ('1', '1', 'Home', 'Brunswick', '3012', 'VIC', '108 Union Street');
 INSERT INTO address (id,profile_id,type,city,postcode,state,street) VALUES ('2', '2', 'Home', 'Chatswood', '2067', 'NSW', '1 Katherine Street');
 INSERT INTO address (id,profile_id,type,city,postcode,state,street) VALUES ('3', '1', 'Office', 'Melbourne', '3000', 'VIC', '12 Colline Street');

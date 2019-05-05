@@ -1,13 +1,18 @@
 package com.xingyu.model;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
@@ -21,9 +26,23 @@ public class UserProfile {
 	@Id
     @GeneratedValue
     private Long id;
-	
-	@OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "uid")
+	/**
+	 * account
+	 */
+    @Column(unique =true)
+    @Expose
+    private String username;
+    @Expose
+	private String password;
+    @Expose
+    private String salt;
+    @Expose
+    @ManyToMany(fetch= FetchType.EAGER)
+    @JoinTable(name = "SysUserRole", joinColumns = { @JoinColumn(name = "uid") }, inverseJoinColumns ={@JoinColumn(name = "roleId") })
+    private List<SysRole> roleList;
+    /**
+     * profile
+     */
     private UserAccount account;
 	@Expose
 	private String firstname;
