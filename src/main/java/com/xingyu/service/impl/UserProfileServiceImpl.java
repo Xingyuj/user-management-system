@@ -22,9 +22,9 @@ public class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
-    public boolean saveProfile(UserProfile account) {
+    public boolean saveProfile(UserProfile profile) {
     	try {
-    		userProfileDao.save(account);
+    		userProfileDao.save(profile);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;

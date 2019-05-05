@@ -55,7 +55,7 @@ public class AccountController {
 	}
 	
     @ApiOperation(value = "Authentication", notes = "get JWT token from authentication service")
-	@PostMapping("/login")
+	@PostMapping("/authentications")
 	public BaseResponse<String> login(@RequestParam("username") String username,
 			@RequestParam("password") String password) {
 		UserAccount userInfo = userAccountService.findByUsername(username);

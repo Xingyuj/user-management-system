@@ -24,6 +24,7 @@ import com.xingyu.auth.JWTUtil;
 import com.xingyu.config.BaseResponse;
 import com.xingyu.model.Address;
 import com.xingyu.model.SysRole;
+import com.xingyu.model.UserAccount;
 import com.xingyu.model.UserProfile;
 import com.xingyu.model.UserProfile;
 import com.xingyu.service.UserAccountService;
@@ -97,15 +98,13 @@ public class ProfileController {
 			notes = "Create Profile"
 	)
 	@ApiImplicitParams({
-			@ApiImplicitParam(name = "uid", value = "user account id", required = true, dataType = "String", paramType = "query"),
-			@ApiImplicitParam(name = "dob", value = "date of birth", required = false, dataType = "String", paramType = "query"),
-			@ApiImplicitParam(name = "email", value = "email", required = false, dataType = "String", paramType = "query"),
-			@ApiImplicitParam(name = "firstname", value = "first name", required = false, dataType = "String", paramType = "query"),
-			@ApiImplicitParam(name = "lastname", value = "last name", required = false, dataType = "String", paramType = "query"),
+			@ApiImplicitParam(name = "body", value = "profile body", required = true, dataType = "String", paramType = "body"),
 	})
 	@PostMapping("")
 	@RequiresPermissions("userProfile:create")
-	public BaseResponse<String> createProfile(@ApiIgnore UserProfile profile) {
+	public BaseResponse<String> createProfile(@RequestHeader(value="Authorization") String authorizationHeader, @ApiIgnore UserProfile profile) {
+		UserAccount account = getUserAccountThroughToken(authorizationHeader);
+		profile.setAccount(account);
 		userProfileService.saveProfile(profile);
 		return new BaseResponse<String>(201, "Create Success",null);
 	}
@@ -274,6 +273,11 @@ public class ProfileController {
 		} else {
 			return BaseResponse.failWithCodeAndMsg(401, "Unauthorised: You dont have permission to read other people's profile");
 		}
+	}
+	
+	private UserAccount getUserAccountThroughToken(String token) {
+		String currentUsername = JWTUtil.getUsername(token);
+		return userAccountService.findByUsername(currentUsername);
 	}
 
 }
