@@ -11,7 +11,7 @@ Go into repo root path simply run (chmod file if no permission)
     ./start.sh
 ```
 This script will call docker-compose and run DML to insert test data.
-**if insert sql failed, which may caused by container not ready. Please run this script again.** After all docker containers start, you should be able to visit http://127.0.0.1:8080/swagger-ui.html to check the system API doc.
+**If insert sql failed, which may caused by container not ready. Please run this script again.** After all docker containers start, you should be able to visit http://127.0.0.1:8080/swagger-ui.html to check the system API doc.
 
 ### How to test
 Run unit tests
