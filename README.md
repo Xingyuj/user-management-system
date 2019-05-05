@@ -1,6 +1,6 @@
 ## Ethan UMS Service Api
 
-#### How to start
+### How to start
 Download repo
 ```bash
     git clone https://github.com/Xingyuj/user-management-system.git
@@ -13,7 +13,7 @@ Go into repo root path simply run (chmod file if no permission)
 This script will call docker-compose and run DML to insert test data.
 After all docker containers start, you should be able to visit http://127.0.0.1:8080/swagger-ui.html to check the system API doc.
 
-#### How to test
+### How to test
 Run unit tests
 ```bash
     mvn test
@@ -32,7 +32,7 @@ When doing manul test, one should firstly get a `JWT Authorization Token` from A
 
 Futhermore, according to requirements, all resource request needs to add `Authorization` as `header`, value is the token string you just get from `POST` `/authentications`. The rest specific parameters that each endpoint needs can be found in [API Doc](http://127.0.0.1:8080/swagger-ui.html)
 
-#### How to build
+### How to build
 
 This project is using maven as dependencies management. To install dependencies you should
 ```bash
@@ -46,13 +46,13 @@ docker maven build plugin is included in thie project, to create a new docker im
 ```bash
     mvn package docker:build
 ```
-#### Requirements
+### Requirements
 - [git](https://git-scm.com/downloads)
 - [Maven](https://maven.apache.org/)
 - [Docker](https://www.docker.com/community-edition)
 - [Docker-Compose](https://docs.docker.com/compose/install/)
 
-#### Challenges
+### Challenges
 
 * Shiro would prevent swagger resource to be loaded to display api doc, checked on stack overflow, it mentioned to add 'anon' for all swagger resources. But after I added them into the shiro filter its still not working. After researching I add those into application.yml to config and it finnally working. This took me neally an hour to figured out.
 
