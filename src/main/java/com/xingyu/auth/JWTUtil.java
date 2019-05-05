@@ -12,7 +12,7 @@ import java.util.Date;
 public class JWTUtil {
 
     // token expiration time
-    private static final long EXPIRE_TIME = 500*60*1000;
+    private static final long EXPIRE_TIME = 5*60*1000;
 
     /**
      * verify token
