@@ -1,10 +1,14 @@
 package com.xingyu.service.account;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import javax.ws.rs.core.MediaType;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -55,36 +59,92 @@ public class UMSAccountServiceTests {
 	}
 
 	@Test
+	public void adminShouldBeAbleToCreateUser() throws Exception {
+		final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("username", "John");
+		params.add("password", "John123");
+		params.add("email", "John@gmail.com");
+		params.add("firstname", "John");
+		params.add("lastname", "Snow");
+		params.add("dob", "1888-2-2");
+		ResultActions action = this.mockMvc
+				.perform(MockMvcRequestBuilders.post("/accounts").header("Authorization", this.adminToken)
+						.contentType(MediaType.APPLICATION_FORM_URLENCODED).params(params));
+		System.out.println(action.andReturn().getResponse().getContentAsString());
+	}
+
+	@Test
+	public void adminShouldBeAbleToReadUser() throws Exception {
+		String mvcResult = mockMvc
+				.perform(
+						MockMvcRequestBuilders.get("/accounts/1?platform=web").header("Authorization", this.adminToken))
+				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+		System.out.println("Result === " + mvcResult);
+	}
+
+	@Test
+	public void adminShouldBeAbleToAssignRole() throws Exception {
+		String mvcResult = mockMvc.perform(MockMvcRequestBuilders.delete("/accounts/2/roles"))
+				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+		System.out.println("Result === " + mvcResult);
+	}
+
+	@Test
+	public void adminShouldBeAbleToRemoveRole() throws Exception {
+		String mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/accounts/2/roles")).andExpect(status().isOk())
+				.andReturn().getResponse().getContentAsString();
+		System.out.println("Result === " + mvcResult);
+	}
+
+	@Test
+	public void adminShouldBeAbleToAddAddress() throws Exception {
+		String mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/accounts/1/addresses"))
+				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+		System.out.println("Result === " + mvcResult);
+	}
+
+	@Test
+	public void adminShouldBeAbleToRemoveAddress() throws Exception {
+		String mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/accounts/1/addresses"))
+				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+		System.out.println("Result === " + mvcResult);
+	}
+
+	@Test
+	public void adminShouldBeAbleToDeleteUser() throws Exception {
+		String mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/accounts/2")).andReturn().getResponse()
+				.getContentAsString();
+		System.out.println("Result === " + mvcResult);
+	}
+
+	@Test
+	public void userShouldBeAbleToReadOwnProfile() throws Exception {
+		this.mockMvc.perform(get("/accounts/2?platform=web").header("Authorization", this.userToken))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	public void userShouldBeAbleToDeleteOwnProfile() throws Exception {
+		this.mockMvc.perform(delete("/accounts/2").header("Authorization", this.userToken)).andExpect(status().isOk());
+	}
+
+	@Test
 	public void userShouldNotBeAbleToListUsers() throws Exception {
 		this.mockMvc.perform(get("/accounts").header("Authorization", this.userToken))
 				.andExpect(jsonPath("$.data").doesNotExist());
 	}
 
 	@Test
-	public void adminShouldBeAbleToCreateUser() throws Exception {
-		final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-		params.add("username", "Amy");
-		params.add("password", "Amy123");
-		params.add("email", "Amy123@gmail.com");
-		ResultActions action = this.mockMvc.perform(
-				MockMvcRequestBuilders.post("/accounts").header("Authorization", this.adminToken).params(params))
-				.andExpect(status().isOk());
-		System.out.println(action.andReturn().getResponse().getContentAsString());
+	public void userShouldNotBeAbleToReadOtherUsersProfile() throws Exception {
+		this.mockMvc.perform(get("/accounts/1").header("Authorization", this.userToken))
+				.andExpect(jsonPath("$.data").doesNotExist());
 	}
 
 	@Test
-	public void adminShouldBeAbleToReadUser() throws Exception {
-		String mvcResult=  mockMvc.perform(MockMvcRequestBuilders.post("/accounts/1"))
-                .andReturn().getResponse().getContentAsString();
-        System.out.println("Result === "+mvcResult);
+	public void userShouldNotBeAbleToDeleteOtherUsersProfile() throws Exception {
+		this.mockMvc.perform(delete("/accounts/1").header("Authorization", this.userToken))
+				.andExpect(jsonPath("$.data").doesNotExist());
 	}
-
-	@Test
-    public void adminShouldBeAbleToDeleteUser() throws Exception {
-        String mvcResult=  mockMvc.perform(MockMvcRequestBuilders.post("/accounts/1"))
-                .andReturn().getResponse().getContentAsString();
-        System.out.println("Result === "+mvcResult);
-    }
 
 	private String fetchJWTToken(MultiValueMap<String, String> params) {
 		String response = null;
@@ -97,6 +157,25 @@ public class UMSAccountServiceTests {
 			e.printStackTrace();
 		}
 		return JsonPath.parse(response).read("$.data").toString();
+	}
+
+	private String buildUrlEncodedFormEntity(String... params) {
+		if ((params.length % 2) > 0) {
+			throw new IllegalArgumentException("Need to give an even number of parameters");
+		}
+		StringBuilder result = new StringBuilder();
+		for (int i = 0; i < params.length; i += 2) {
+			if (i > 0) {
+				result.append('&');
+			}
+			try {
+				result.append(URLEncoder.encode(params[i], StandardCharsets.UTF_8.name())).append('=')
+						.append(URLEncoder.encode(params[i + 1], StandardCharsets.UTF_8.name()));
+			} catch (UnsupportedEncodingException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return result.toString();
 	}
 
 }
