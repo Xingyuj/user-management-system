@@ -33,7 +33,7 @@ public class UMSAuthenticationTests {
         final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("username", "admin");
         params.add("password", "admin");
-        this.mockMvc.perform(MockMvcRequestBuilders.post("accounts/login").params(params))
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/authentications").params(params))
         	.andExpect(status().isOk())
         	.andExpect(jsonPath("$.data").exists());
     }
