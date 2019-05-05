@@ -11,7 +11,7 @@ Go into repo root path simply run (chmod file if no permission)
     ./start.sh
 ```
 This script will call docker-compose and run DML to insert test data.
-After all docker containers start, you should be able to visit http://127.0.0.1:8080/swagger-ui.html to check the system API doc.
+**if insert sql failed, which may caused by container not ready. Please run this script again.** After all docker containers start, you should be able to visit http://127.0.0.1:8080/swagger-ui.html to check the system API doc.
 
 ### How to test
 Run unit tests
@@ -54,11 +54,11 @@ docker maven build plugin is included in thie project, to create a new docker im
 
 ### Challenges
 
-* Shiro would prevent swagger resource to be loaded to display api doc, checked on stack overflow, it mentioned to add 'anon' for all swagger resources. But after I added them into the shiro filter its still not working. After researching I add those into application.yml to config and it finnally working. This took me neally an hour to figured out.
+- Shiro would prevent swagger resource to be loaded to display api doc, checked on stack overflow, it mentioned to add 'anon' for all swagger resources. But after I added them into the shiro filter its still not working. After researching I add those into application.yml to config and it finnally working. This took me neally an hour to figured out.
 
-* I was tring to config docker-compose to automatically dump DML data into database after containers running. After researching finnally find a solution:
+- I was tring to config docker-compose to automatically dump DML data into database after containers running. After researching finnally find a solution:
 ```bash
     docker exec -u postgres xingyu-postgres psql postgres postgres -f docker-entrypoint-initdb.d/dump.
 ```
 
-* The whole project costs around two days to be finished. Consider time limited, major functions are to be implemented first. There are still several bugs to be fixed, some refactorings to be done. Therefore, exceptions may occur when unexpected parameters pass in. As a result, you may get `500 internal server error` as a response.
+- The whole project costs around two days to be finished. Consider time limited, major functions are to be implemented first. There are still several bugs to be fixed, some refactorings to be done. Therefore, exceptions may occur when unexpected parameters pass in. As a result, you may get `500 internal server error` as a response.
