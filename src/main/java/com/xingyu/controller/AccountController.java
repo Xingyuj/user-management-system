@@ -12,11 +12,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.xingyu.auth.JWTUtil;
 import com.xingyu.config.BaseResponse;
@@ -155,12 +157,11 @@ public class AccountController {
 
 	@ApiOperation(value = "get a user account info", notes = "get a user account info")
 	@ApiImplicitParams({
-			@ApiImplicitParam(name = "id", value = "id", required = true, dataType = "String", paramType = "query"), })
+		@ApiImplicitParam(name = "platform", value = "platform", required = false, dataType = "String", paramType = "query"), })
 	@GetMapping("/{id}")
 	@RequiresPermissions("userAccount:read")
-	public BaseResponse<String> readAccount(@PathVariable long id,
+	public BaseResponse<String> readAccount(@PathVariable long id,@RequestParam String platform,
 			@RequestHeader(value = "Authorization") String authorizationHeader) {
-
 		UserAccount account = userAccountService.findById(id);
 		String currentUsername = JWTUtil.getUsername(authorizationHeader);
 		boolean isAdmin = false;
@@ -170,7 +171,17 @@ public class AccountController {
 			}
 		}
 		if (isAdmin || account.getUsername().equalsIgnoreCase(currentUsername)) {
-			return BaseResponse.successWithData(gson.toJson(userAccountService.findById(id)));
+			JsonElement jsonElement = gson.toJsonTree(account);
+			JsonObject jsonObject = (JsonObject) jsonElement;
+
+			if("web".equalsIgnoreCase(platform)) {
+				for (Address address : account.getAddresses()) {
+					JsonElement jsonElemen1t = gson.toJsonTree(address);
+					jsonObject.add(address.getType(), gson.toJsonTree(address));
+				}
+
+			}
+			return BaseResponse.successWithData(gson.toJson(jsonObject));
 		} else {
 			return BaseResponse.failWithCodeAndMsg(401,
 					"Unauthorised: You dont have permission to read other people's profile");

@@ -38,7 +38,6 @@ public class UserAccount implements Serializable {
 	private String password;
 	@Expose
 	private String salt;
-	@Expose
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "SysUserRole", joinColumns = { @JoinColumn(name = "uid") }, inverseJoinColumns = {
 			@JoinColumn(name = "roleId") })
@@ -56,6 +55,7 @@ public class UserAccount implements Serializable {
 	@Expose
 	private String email;
 
+	
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumn(name = "userId")
 	@OrderBy("id asc")
@@ -143,5 +143,19 @@ public class UserAccount implements Serializable {
 
 	public String getCredentialsSalt() {
 		return this.username + this.salt;
+	}
+	
+	@Override
+	public String toString() {
+		return "{" +
+					"id:" + id +
+					", username:'" + username + '\'' +
+					", firstname:'" + firstname + '\'' +
+					", lastname:" + lastname + '\'' +
+					", password:" + password + '\'' +
+					", email:" + email + '\'' +
+					", dob:" + dob + '\'' +
+					", address:" + addresses + '\'' +
+				'}';
 	}
 }

@@ -43,7 +43,7 @@ public class BaseResponse<T> {
     }
 
     public static <T> BaseResponse<T> successWithData(T data) {
-        return new BaseResponse<>(data);
+        return new BaseResponse<T>(data);
     }
 
     public static <T> BaseResponse<T> failWithCodeAndMsg(int code, String msg) {
