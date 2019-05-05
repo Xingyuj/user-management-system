@@ -60,3 +60,5 @@ docker maven build plugin is included in thie project, to create a new docker im
 ```bash
     docker exec -u postgres xingyu-postgres psql postgres postgres -f docker-entrypoint-initdb.d/dump.
 ```
+
+* The whole project costs around two days to be finished. Consider time limited, major functions are to be implemented first. There are still several bugs to be fixed, some refactorings to be done. Therefore, exceptions may occur when unexpected parameters pass in. As a result, you may get `500 internal server error` as a response.
