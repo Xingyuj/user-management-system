@@ -176,7 +176,6 @@ public class AccountController {
 
 			if("web".equalsIgnoreCase(platform)) {
 				for (Address address : account.getAddresses()) {
-					JsonElement jsonElemen1t = gson.toJsonTree(address);
 					jsonObject.add(address.getType(), gson.toJsonTree(address));
 				}
 
