@@ -1,6 +1,5 @@
 ## Ethan UMS Service Api
 
-
 #### How to start
 Download repo
 ```bash
@@ -23,17 +22,15 @@ Manually call API by using
 - [Postman](https://www.getpostman.com/downloads/)
 - [Swagger](http://127.0.0.1:8080/swagger-ui.html)
 
-When doing manul test, one should firstly get a `JWT Authorization Token` from Authentication service by calling `POST` `/authentications` under Authentication Controller.
-
-Futhermore, according to requirements, any resource request needs to add `Authorization` as `header`, value is the token string you just get from `POST` `/authentications`
-
-For the convenience of testing, an `admin` user has been initialised into database.
+When doing manul test, one should firstly get a `JWT Authorization Token` from Authentication service by calling `POST` `/authentications` under Authentication Controller. This endpoint needs username and password as parameters. For the convenience of testing, an `admin` user has been initialised into database. Please use this admin user to start testing and create other accounts.
 ```json
 {
   "username":"admin",
   "password":"admin"
 }
 ```
+
+Futhermore, according to requirements, all resource request needs to add `Authorization` as `header`, value is the token string you just get from `POST` `/authentications`. The rest specific parameters that each endpoint needs can be found in [API Doc](http://127.0.0.1:8080/swagger-ui.html)
 
 #### How to build
 
@@ -49,6 +46,11 @@ docker maven build plugin is included in thie project, to create a new docker im
 ```bash
     mvn package docker:build
 ```
+#### Requirements
+- [git](https://git-scm.com/downloads)
+- [Maven](https://maven.apache.org/)
+- [Docker](https://www.docker.com/community-edition)
+- [Docker-Compose](https://docs.docker.com/compose/install/)
 
 #### Challenges
 
