@@ -57,7 +57,7 @@ public class UserAccount implements Serializable {
 	private String email;
 
 	@OneToMany(cascade = CascadeType.ALL)
-	@JoinColumn(name = "profile_id")
+	@JoinColumn(name = "userId")
 	@OrderBy("id asc")
 	private Set<Address> addresses;
 
