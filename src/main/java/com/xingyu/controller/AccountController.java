@@ -190,8 +190,8 @@ public class AccountController {
 	 */
 	@ApiOperation(value = "Assigne role to user", notes = "Assigne role to user")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "body", value = "update json body", required = true, dataType = "string", paramType = "body", examples = @io.swagger.annotations.Example(value = {
-				@ExampleProperty(mediaType = MediaType.APPLICATION_FORM_URLENCODED, value = "{id:'id', role:'role'") })) })
+			@ApiImplicitParam(name = "body", value = "update json body", required = true, dataType = "string", paramType = "body", examples = @io.swagger.annotations.Example(value = {
+					@ExampleProperty(mediaType = MediaType.APPLICATION_FORM_URLENCODED, value = "{id:'id', role:'role'") })) })
 	@PostMapping("/{id}/roles")
 	@RequiresPermissions("userAccount:update")
 	public BaseResponse<String> assignAccountRole(@PathVariable long id, @ApiIgnore SysRole role) {

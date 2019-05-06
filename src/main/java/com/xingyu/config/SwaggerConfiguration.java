@@ -27,26 +27,34 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 public class SwaggerConfiguration {
     @Bean
-    public Docket createRestApi(){
+    public Docket usersApi(){
         //add head start
         ParameterBuilder tokenPar = new ParameterBuilder();
         List<Parameter> pars = new ArrayList<>();
-        tokenPar.name("Authorization").description("jwt token").modelRef(new ModelRef("string")).parameterType("header").required(false).build();
+        tokenPar.name("Authorization").description("jwt token").modelRef(new ModelRef("string")).parameterType("header").required(true).build();
         pars.add(tokenPar.build());
         //add head end
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
+                .groupName("usersAPI")
                 .ignoredParameterTypes(UserAccount.class)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.xingyu.controller"))
-                .paths(PathSelectors.any())
+                .paths(PathSelectors.ant("/accounts/**"))
                 .build()
                 .globalOperationParameters(pars);
+    }
+    @Bean
+    public Docket wap_api() {
+        return new Docket(DocumentationType.SWAGGER_2).select().apis(RequestHandlerSelectors.any())
+                .paths(PathSelectors.ant("/authentications/**")).build()
+                .groupName("authentication")
+                .apiInfo(apiInfo());
     }
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title("Ethan XingyuJi's UMS API")
-                .description("A restful api demo, repo can be found here https://github.com/Xingyuj/user-management-system")
+                .description("A restful api demo, repo can be found here https://github.com/Xingyuj/user-management-system \n please select authentication or users api spec at upper right corner")
                 .version("1.0")
                 .build();
     }

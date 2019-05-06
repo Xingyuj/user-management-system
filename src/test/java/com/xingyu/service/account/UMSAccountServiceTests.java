@@ -91,14 +91,26 @@ public class UMSAccountServiceTests {
 
 	@Test
 	public void adminShouldBeAbleToRemoveRole() throws Exception {
-		String mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/accounts/2/roles")).andExpect(status().isOk())
-				.andReturn().getResponse().getContentAsString();
+		final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("role", "user");
+		params.add("id", "2");
+		String mvcResult = mockMvc
+				.perform(MockMvcRequestBuilders.post("/accounts/2/roles").header("Authorization", this.adminToken)
+						.contentType(MediaType.APPLICATION_FORM_URLENCODED).params(params))
+				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
 		System.out.println("Result === " + mvcResult);
 	}
 
 	@Test
 	public void adminShouldBeAbleToAddAddress() throws Exception {
-		String mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/accounts/1/addresses"))
+		final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("type", "home2");
+		params.add("state", "VIC");
+		params.add("city", "Brunswick");
+		params.add("postcode", "3012");
+		String mvcResult = mockMvc
+				.perform(MockMvcRequestBuilders.post("/accounts/1/addresses").header("Authorization", this.adminToken)
+						.contentType(MediaType.APPLICATION_FORM_URLENCODED).params(params))
 				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
 		System.out.println("Result === " + mvcResult);
 	}
