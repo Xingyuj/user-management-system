@@ -1,6 +1,7 @@
 package com.xingyu.controller;
 
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import javax.ws.rs.core.MediaType;
 
@@ -17,11 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
 import com.xingyu.auth.JWTUtil;
 import com.xingyu.config.BaseResponse;
 import com.xingyu.model.Address;
@@ -44,34 +40,62 @@ import springfox.documentation.annotations.ApiIgnore;
 public class AccountController {
 
 	private UserAccountService userAccountService;
-	private Gson gson;
 
 	@Autowired
 	public void setUserAccountService(UserAccountService userAccountService) {
 		this.userAccountService = userAccountService;
 	}
 
-	@Autowired
-	public void setGson(Gson gson) {
-		GsonBuilder builder = new GsonBuilder().disableHtmlEscaping();
-		builder.excludeFieldsWithoutExposeAnnotation();
-		this.gson = builder.create();
-	}
-
 	@ApiOperation(value = "list all users", notes = "list all users")
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "platform", value = "platform", required = false, dataType = "String", paramType = "query"), })
 	@ApiResponses({ @ApiResponse(code = 100, message = "Data Exception") })
 	@GetMapping("")
 	@RequiresPermissions("userAccount:list")
-	public BaseResponse<String> listAccounts() {
-		JsonElement element = null;
+	public BaseResponse<List<UserAccount>> listAccounts(@RequestParam(required = false) String platform) {
 		try {
-			element = gson.toJsonTree(this.userAccountService.findAll(), new TypeToken<ArrayList<UserAccount>>() {
-			}.getType());
+			List<UserAccount> accounts = userAccountService.findAll();
+			if ("mobile".equalsIgnoreCase(platform)) {
+				for (UserAccount userAccount : accounts) {
+					userAccount.getAddresses().clear();
+					userAccount.getRoleList().clear();
+				}
+			}
+			return BaseResponse.successWithData(accounts);
 		} catch (Exception e) {
-			e.printStackTrace();
-			return new BaseResponse<String>(100, "Data Exception", null);
+			return BaseResponse.failWithCodeAndMsg(401, e.getMessage());
 		}
-		return BaseResponse.successWithData(element.getAsJsonArray().toString());
+
+	}
+
+	@ApiOperation(value = "get a user account info", notes = "get a user account info")
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "platform", value = "platform", required = false, dataType = "String", paramType = "query"), })
+	@GetMapping("/{id}")
+	@RequiresPermissions("userAccount:read")
+	public BaseResponse<UserAccount> readAccount(@PathVariable long id, @RequestParam(required = false) String platform,
+			@RequestHeader(value = "Authorization") String authorizationHeader) {
+		try {
+			UserAccount account = userAccountService.findById(id);
+			String username = JWTUtil.getUsername(authorizationHeader);
+			if (account == null) {
+				return BaseResponse.failWithCodeAndMsg(100, "Unable to find account, check your ID input.");
+			}
+			if (account.getRoleList().stream().filter(it -> it.getRole().equals("admin")).findFirst().isPresent()
+					|| account.getUsername().equalsIgnoreCase(username)) {
+				if ("mobile".equalsIgnoreCase(platform)) {
+					account.getAddresses().clear();
+					account.getRoleList().clear();
+				}
+				return BaseResponse.successWithData(account);
+			} else {
+				return BaseResponse.failWithCodeAndMsg(401,
+						"Unauthorised: You dont have permission to read other people's profile");
+			}
+		} catch (Exception e) {
+			return BaseResponse.failWithCodeAndMsg(401, e.getMessage());
+		}
+
 	}
 
 	@ApiOperation(value = "Create Account", notes = "Create Account")
@@ -80,10 +104,14 @@ public class AccountController {
 					@ExampleProperty(mediaType = "application/json", value = "{username:'username', password:'password', dob:'dob', email:'email',firstname:'firstname',lastname:'lastname'}") })) })
 	@PostMapping("")
 	@RequiresPermissions("userAccount:create")
-	public BaseResponse<String> createAccount(UserAccount account) {
-		userAccountService.saveAccount(account);
-		return new BaseResponse<String>(201, "Create Success",
-				"resource id: " + userAccountService.findByUsername(account.getUsername()).getId());
+	public BaseResponse<UserAccount> createAccount(UserAccount account) {
+		try {
+			userAccountService.saveAccount(account);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return BaseResponse.failWithCodeAndMsg(100, e.getMessage());
+		}
+		return new BaseResponse<UserAccount>(201, "Create Success", account);
 	}
 
 	@ApiOperation(value = "Put update account", notes = "Put update account, could replace the entity")
@@ -95,21 +123,20 @@ public class AccountController {
 					@ExampleProperty(mediaType = MediaType.APPLICATION_FORM_URLENCODED, value = "{username:'username', password:'password', dob:'dob', email:'email',firstname:'firstname',lastname:'lastname'}") })) })
 	@PutMapping("/{id}")
 	@RequiresPermissions("userAccount:update")
-	public BaseResponse<String> putAccount(@PathVariable Long id, @ApiIgnore UserAccount account) {
+	public BaseResponse<UserAccount> putAccount(@PathVariable Long id, @ApiIgnore UserAccount account) {
 		UserAccount savedAccount = userAccountService.findById(id);
 		try {
 			if (savedAccount == null) {
+				account.setId(id);
 				userAccountService.saveAccount(account);
-				return new BaseResponse<String>(201, "Create Success",
-						"resource id: " + userAccountService.findByUsername(account.getUsername()).getId());
+				return new BaseResponse<UserAccount>(201, "Create Success", account);
 			} else {
-				userAccountService.deleteAccount(id);
 				userAccountService.saveAccount(account);
-				return new BaseResponse<String>(202, "Overwrite Success", "resource id: " + id);
+				return new BaseResponse<UserAccount>(202, "Overwrite Success", account);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new BaseResponse<String>(-1, "Unable to save the account", null);
+			return BaseResponse.failWithCodeAndMsg(100, e.getMessage());
 		}
 	}
 
@@ -119,17 +146,21 @@ public class AccountController {
 					@ExampleProperty(mediaType = MediaType.APPLICATION_FORM_URLENCODED, value = "{username:'username', password:'password', dob:'dob', email:'email',firstname:'firstname',lastname:'lastname'}") })) })
 	@PatchMapping("/{id}")
 	@RequiresPermissions("userAccount:update")
-	public BaseResponse<String> patchAccount(@PathVariable Long id, @ApiIgnore UserAccount account) {
-		UserAccount savedAccount = userAccountService.findById(id);
-		savedAccount.setPassword(account.getPassword());
-		savedAccount.setUsername(account.getUsername());
-		savedAccount.setSalt(account.getSalt());
-		savedAccount.setDob(account.getDob());
-		savedAccount.setEmail(account.getEmail());
-		savedAccount.setFirstname(account.getFirstname());
-		savedAccount.setLastname(account.getLastname());
-		userAccountService.saveAccount(account);
-		return new BaseResponse<String>(202, "Overwrite Success", "resource id: " + id);
+	public BaseResponse<UserAccount> patchAccount(@PathVariable Long id, @ApiIgnore UserAccount account) {
+		try {
+			UserAccount savedAccount = userAccountService.findById(id);
+			Optional.ofNullable(account.getPassword()).ifPresent(savedAccount::setPassword);
+			Optional.ofNullable(account.getUsername()).ifPresent(savedAccount::setUsername);
+			Optional.ofNullable(account.getSalt()).ifPresent(savedAccount::setSalt);
+			Optional.ofNullable(account.getDob()).ifPresent(savedAccount::setDob);
+			Optional.ofNullable(account.getEmail()).ifPresent(savedAccount::setEmail);
+			Optional.ofNullable(account.getFirstname()).ifPresent(savedAccount::setFirstname);
+			Optional.ofNullable(account.getLastname()).ifPresent(savedAccount::setLastname);
+			userAccountService.saveAccount(account);
+			return new BaseResponse<UserAccount>(202, "Overwrite Success", account);
+		} catch (Exception e) {
+			return BaseResponse.failWithCodeAndMsg(100, e.getMessage());
+		}
 	}
 
 	@ApiOperation(value = "delete a user", notes = "delete a user")
@@ -137,51 +168,23 @@ public class AccountController {
 	@RequiresPermissions("userAccount:delete")
 	public BaseResponse<String> deleteAccount(@PathVariable long id,
 			@RequestHeader(value = "Authorization") String authorizationHeader) {
-		UserAccount account = userAccountService.findById(id);
-		String currentUsername = JWTUtil.getUsername(authorizationHeader);
-		boolean isAdmin = false;
-		for (SysRole role : userAccountService.findByUsername(currentUsername).getRoleList()) {
-			if ("admin".equalsIgnoreCase(role.getRole())) {
-				isAdmin = true;
+		try {
+			UserAccount account = userAccountService.findById(id);
+			String username = JWTUtil.getUsername(authorizationHeader);
+			if (account == null) {
+				return BaseResponse.failWithCodeAndMsg(100, "No such an account can be deleted, Check your ID input.");
 			}
-		}
-		if (isAdmin || account.getUsername().equalsIgnoreCase(currentUsername)) {
-			userAccountService.deleteAccount(id);
-			return BaseResponse.successWithData("Deleted");
-		} else {
-			return BaseResponse.failWithCodeAndMsg(401,
-					"Unauthorised: You dont have permission to delete other people's profile");
-		}
-	}
-
-	@ApiOperation(value = "get a user account info", notes = "get a user account info")
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "platform", value = "platform", required = true, dataType = "String", paramType = "query"), })
-	@GetMapping("/{id}")
-	@RequiresPermissions("userAccount:read")
-	public BaseResponse<String> readAccount(@PathVariable long id, @RequestParam String platform,
-			@RequestHeader(value = "Authorization") String authorizationHeader) {
-		UserAccount account = userAccountService.findById(id);
-		String currentUsername = JWTUtil.getUsername(authorizationHeader);
-		boolean isAdmin = false;
-		for (SysRole role : userAccountService.findByUsername(currentUsername).getRoleList()) {
-			if ("admin".equalsIgnoreCase(role.getRole())) {
-				isAdmin = true;
+			if (userAccountService.findByUsername(username).getRoleList().stream()
+					.filter(it -> it.getRole().equals("admin")).findFirst().isPresent()
+					|| account.getUsername().equalsIgnoreCase(username)) {
+				userAccountService.deleteAccount(id);
+				return BaseResponse.successWithData("resource:" + id + " deleted");
+			} else {
+				return BaseResponse.failWithCodeAndMsg(401,
+						"Unauthorised: You dont have permission to delete other people's profile");
 			}
-		}
-		if (isAdmin || account.getUsername().equalsIgnoreCase(currentUsername)) {
-			JsonElement jsonElement = gson.toJsonTree(account);
-			JsonObject jsonObject = (JsonObject) jsonElement;
-
-			if ("web".equalsIgnoreCase(platform)) {
-				for (Address address : account.getAddresses()) {
-					jsonObject.add(address.getType(), gson.toJsonTree(address));
-				}
-			}
-			return BaseResponse.successWithData(gson.toJson(jsonObject));
-		} else {
-			return BaseResponse.failWithCodeAndMsg(401,
-					"Unauthorised: You dont have permission to read other people's profile");
+		} catch (Exception e) {
+			return BaseResponse.failWithCodeAndMsg(100, e.getMessage());
 		}
 	}
 
@@ -194,27 +197,30 @@ public class AccountController {
 					@ExampleProperty(mediaType = MediaType.APPLICATION_FORM_URLENCODED, value = "{id:'id', role:'role'") })) })
 	@PostMapping("/{id}/roles")
 	@RequiresPermissions("userAccount:update")
-	public BaseResponse<String> assignAccountRole(@PathVariable long id, @ApiIgnore SysRole role) {
-		UserAccount savedAccount = userAccountService.findById(id);
-		savedAccount.getRoleList().add(role);
-		userAccountService.saveAccount(savedAccount);
-		return BaseResponse.successWithData("Assign Role Success");
+	public BaseResponse<UserAccount> assignAccountRole(@PathVariable long id, @ApiIgnore SysRole role) {
+		try {
+			UserAccount savedAccount = userAccountService.findById(id);
+			savedAccount.getRoleList().add(role);
+			userAccountService.saveAccount(savedAccount);
+			return BaseResponse.successWithData(savedAccount);
+		} catch (Exception e) {
+			return BaseResponse.failWithCodeAndMsg(100, e.getMessage());
+		}
 	}
 
 	@ApiOperation(value = "remove a role from user", notes = "remove a role from user")
 	@DeleteMapping("/{id}/roles")
 	@RequiresPermissions("userAccount:update")
-	public BaseResponse<String> removeAccountRole(@PathVariable long id, @ApiIgnore SysRole role) {
-		UserAccount savedAccount = userAccountService.findById(id);
-		SysRole roleToBeRemoved = null;
-		for (SysRole sysRole : savedAccount.getRoleList()) {
-			if (sysRole.getId() == role.getId() || sysRole.getRole().equalsIgnoreCase(role.getRole())) {
-				roleToBeRemoved = sysRole;
-			}
+	public BaseResponse<UserAccount> removeAccountRole(@PathVariable long id, @ApiIgnore SysRole role) {
+		try {
+			UserAccount savedAccount = userAccountService.findById(id);
+			savedAccount.getRoleList()
+					.removeIf(it -> it.getRole().equalsIgnoreCase(role.getRole()) || it.getId() == role.getId());
+			userAccountService.saveAccount(savedAccount);
+			return BaseResponse.successWithData(savedAccount);
+		} catch (Exception e) {
+			return BaseResponse.failWithCodeAndMsg(100, e.getMessage());
 		}
-		savedAccount.getRoleList().remove(roleToBeRemoved);
-		userAccountService.saveAccount(savedAccount);
-		return BaseResponse.successWithData("Remove Role Success");
 	}
 
 	/**
@@ -225,12 +231,15 @@ public class AccountController {
 			@ExampleProperty(mediaType = MediaType.APPLICATION_FORM_URLENCODED, value = "{type:'type', city:'city', postcode:'postcode', state:'state', street:'street'") }))
 	@PostMapping("/{id}/addresses")
 	@RequiresPermissions("userAccount:update")
-	public BaseResponse<String> createProfileAddress(@PathVariable Long id, @ApiIgnore Address address) {
-		UserAccount account = userAccountService.findById(id);
-		address.setId(null);
-		account.getAddresses().add(address);
-		userAccountService.saveAccount(account);
-		return new BaseResponse<String>(201, "Create Success", null);
+	public BaseResponse<UserAccount> createProfileAddress(@PathVariable Long id, @ApiIgnore Address address) {
+		try {
+			UserAccount account = userAccountService.findById(id);
+			account.getAddresses().add(address);
+			userAccountService.saveAccount(account);
+			return new BaseResponse<UserAccount>(201, "Create Success", account);
+		} catch (Exception e) {
+			return BaseResponse.failWithCodeAndMsg(100, e.getMessage());
+		}
 	}
 
 	@ApiOperation(value = "Update Address", notes = "Update Address")
@@ -238,35 +247,40 @@ public class AccountController {
 			@ExampleProperty(mediaType = MediaType.APPLICATION_FORM_URLENCODED, value = "{type:'type', city:'city', postcode:'postcode', state:'state', street:'street'") }))
 	@PatchMapping("/{id}/addresses")
 	@RequiresPermissions("userAccount:update")
-	public BaseResponse<String> updateProfileAddress(@PathVariable Long id, @ApiIgnore Address address) {
-		UserAccount account = userAccountService.findById(id);
-		for (Address savedAddress : account.getAddresses()) {
-			if (savedAddress.getType().equalsIgnoreCase(address.getType())) {
-				savedAddress.setCity(address.getCity());
-				savedAddress.setPostcode(address.getPostcode());
-				savedAddress.setState(address.getState());
-				savedAddress.setStreet(address.getStreet());
-				savedAddress.setType(address.getType());
+	public BaseResponse<UserAccount> updateProfileAddress(@PathVariable Long id, @ApiIgnore Address address) {
+		try {
+			UserAccount account = userAccountService.findById(id);
+			for (Address savedAddress : account.getAddresses()) {
+				if(savedAddress.getId().equals(address.getId())) {
+					Optional.ofNullable(address.getCity()).ifPresent(savedAddress::setCity);
+					Optional.ofNullable(address.getPostcode()).ifPresent(savedAddress::setPostcode);
+					Optional.ofNullable(address.getState()).ifPresent(savedAddress::setState);
+					Optional.ofNullable(address.getStreet()).ifPresent(savedAddress::setStreet);
+					Optional.ofNullable(address.getType()).ifPresent(savedAddress::setType);
+				}
 			}
+			userAccountService.saveAccount(account);
+			return new BaseResponse<UserAccount>(202, "Overwrite Success", account);
+		} catch (Exception e) {
+			return BaseResponse.failWithCodeAndMsg(100, e.getMessage());
 		}
-		userAccountService.saveAccount(account);
-		return new BaseResponse<String>(201, "Address Update Success", null);
 	}
 
 	@ApiOperation(value = "Delete Address", notes = "Delete Address")
 	@DeleteMapping("/{id}/addresses")
 	@RequiresPermissions("userAccount:update")
-	public BaseResponse<String> removeProfileAddress(@PathVariable Long id, @ApiIgnore Address address) {
-		UserAccount account = userAccountService.findById(id);
-		Address addressToBeRemoved = null;
-		for (Address savedAddress : account.getAddresses()) {
-			if (savedAddress.getType().equalsIgnoreCase(address.getType())) {
-				addressToBeRemoved = savedAddress;
+	public BaseResponse<UserAccount> removeProfileAddress(@PathVariable Long id, @ApiIgnore Address address) {
+		try {
+			UserAccount account = userAccountService.findById(id);
+			if(account == null) {
+				return BaseResponse.failWithCodeAndMsg(100, "No such an address to be deleted");
 			}
+			account.getAddresses().removeIf(it -> it.getId().equals(address.getId()));
+			userAccountService.saveAccount(account);
+			return new BaseResponse<UserAccount>(203, "Remove Success", account);
+		} catch (Exception e) {
+			return BaseResponse.failWithCodeAndMsg(100, e.getMessage());
 		}
-		account.getAddresses().remove(addressToBeRemoved);
-		userAccountService.saveAccount(account);
-		return new BaseResponse<String>(201, "Address Update Success", null);
 	}
 
 }

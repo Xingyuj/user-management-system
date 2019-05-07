@@ -1,25 +1,31 @@
 package com.xingyu.model;
 
-import javax.persistence.*;
-
-import com.google.gson.annotations.Expose;
-
 import java.util.List;
+
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class SysRole {
     @Id
     @GeneratedValue
     private Long id;
-    @Expose
     private String role;
-    @Expose
     private String description;
 
+    @JsonIgnore
     @ManyToMany(fetch= FetchType.EAGER)
     @JoinTable(name="SysRolePermission",joinColumns={@JoinColumn(name="roleId")},inverseJoinColumns={@JoinColumn(name="permissionId")})
     private List<SysPermission> permissions;
 
+    @JsonIgnore
     @ManyToMany
     @JoinTable(name="SysUserRole",joinColumns={@JoinColumn(name="roleId")},inverseJoinColumns={@JoinColumn(name="uid")})
     private List<UserAccount> userAccounts;

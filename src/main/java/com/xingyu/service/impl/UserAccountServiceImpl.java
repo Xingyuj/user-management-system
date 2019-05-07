@@ -1,14 +1,13 @@
 package com.xingyu.service.impl;
 
 import java.util.ArrayList;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
 import com.xingyu.dao.UserAccountDao;
 import com.xingyu.model.UserAccount;
 import com.xingyu.service.UserAccountService;
@@ -24,12 +23,12 @@ public class UserAccountServiceImpl implements UserAccountService {
     }
     
     @Override
-    public boolean saveAccount(UserAccount account) {
+    public boolean saveAccount(UserAccount account){
     	try {
     		userAccountDao.save(account);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return false;
+			throw e;
 		}
         return true;
     }
@@ -54,7 +53,14 @@ public class UserAccountServiceImpl implements UserAccountService {
 
 	@Override
 	public UserAccount findById(long id) {
-        return userAccountDao.findById(id).get();
+		try {
+			return userAccountDao.findById(id).get();
+		} catch (NoSuchElementException e) {
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
     
 }

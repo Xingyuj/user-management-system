@@ -9,7 +9,6 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -19,25 +18,21 @@ import javax.persistence.OrderBy;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import com.google.gson.annotations.Expose;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 public class UserAccount implements Serializable {
 	private static final long serialVersionUID = -3210565389728151509L;
 	@Id
-	@GeneratedValue
-	@Expose
 	private Long id;
 	/**
 	 * account
 	 */
 	@Column(unique = true)
-	@Expose
 	private String username;
-	@Expose
 	private String password;
-	@Expose
 	private String salt;
+	@JsonIgnoreProperties("costUserAccounts")
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "SysUserRole", joinColumns = { @JoinColumn(name = "uid") }, inverseJoinColumns = {
 			@JoinColumn(name = "roleId") })
@@ -45,17 +40,13 @@ public class UserAccount implements Serializable {
 	/**
 	 * profile
 	 */
-	@Expose
 	private String firstname;
-	@Expose
 	private String lastname;
-	@Expose
 	@Temporal(TemporalType.DATE)
 	private Date dob;
-	@Expose
 	private String email;
 
-	
+	@JsonIgnoreProperties("costUserAccounts")
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumn(name = "userId")
 	@OrderBy("id asc")
@@ -143,19 +134,5 @@ public class UserAccount implements Serializable {
 
 	public String getCredentialsSalt() {
 		return this.username + this.salt;
-	}
-	
-	@Override
-	public String toString() {
-		return "{" +
-					"id:" + id +
-					", username:'" + username + '\'' +
-					", firstname:'" + firstname + '\'' +
-					", lastname:" + lastname + '\'' +
-					", password:" + password + '\'' +
-					", email:" + email + '\'' +
-					", dob:" + dob + '\'' +
-					", address:" + addresses + '\'' +
-				'}';
 	}
 }

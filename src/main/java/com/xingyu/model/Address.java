@@ -2,25 +2,16 @@ package com.xingyu.model;
 
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-
-import com.google.gson.annotations.Expose;
 
 @Entity
 public class Address {
 
     @Id
-    @GeneratedValue
-    @Expose
     private Long id;
-    @Expose
     private String type;
-    @Expose
     private String postcode;
-    @Expose
     private String state;
-    @Expose
     private String city;
     public String getType() {
 		return type;

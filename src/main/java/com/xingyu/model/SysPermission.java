@@ -10,7 +10,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 
-import com.google.gson.annotations.Expose;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class SysPermission implements Serializable {
@@ -18,11 +18,10 @@ public class SysPermission implements Serializable {
 	@Id
 	@GeneratedValue
     private Long id;
-	@Expose
     private String name;
-	@Expose
     private String permission;
     
+    @JsonIgnore
     @ManyToMany
     @JoinTable(name="SysRolePermission",joinColumns={@JoinColumn(name="permissionId")},inverseJoinColumns={@JoinColumn(name="roleId")})
     private List<SysRole> roles;
