@@ -1,0 +1,702 @@
+{
+	"info": {
+		"_postman_id": "d11432c2-206b-4696-80e1-68090c695543",
+		"name": "UMS-PostMan-Tests",
+		"description": "Xingyu Ji Code Challenge UMS Tests PostMan Scripts",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "list accounts",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NTcxNTcxNTcsInVzZXJuYW1lIjoiYWRtaW4ifQ.iR22u4k1VDutBtcnAxrBppx_XYFdkLVxSEIxWAMnPt0"
+					}
+				],
+				"body": {},
+				"url": {
+					"raw": "127.0.0.1:8080/accounts",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8080",
+					"path": [
+						"accounts"
+					]
+				},
+				"description": "list accounts"
+			},
+			"response": []
+		},
+		{
+			"name": "get an account",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NTcxNTcxNTcsInVzZXJuYW1lIjoiYWRtaW4ifQ.iR22u4k1VDutBtcnAxrBppx_XYFdkLVxSEIxWAMnPt0",
+						"disabled": false
+					}
+				],
+				"body": {},
+				"url": {
+					"raw": "127.0.0.1:8080/accounts/1?platform=web",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8080",
+					"path": [
+						"accounts",
+						"1"
+					],
+					"query": [
+						{
+							"key": "platform",
+							"value": "web"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "accounts POST",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NTcyNzA3ODUsInVzZXJuYW1lIjoiYWRtaW4ifQ.bfZu-0VtZXNUq822rvUvxOTCJj7KogSYbeU3EyUbOq0"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "firstname",
+							"value": "amy23122",
+							"type": "text"
+						},
+						{
+							"key": "lastname",
+							"value": "amy1232312322",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "23ads",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "dddddd",
+							"type": "text"
+						},
+						{
+							"key": "id",
+							"value": "5125235",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "127.0.0.1:8080/accounts",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8080",
+					"path": [
+						"accounts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "accounts PUT",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NTcyNjkxNjQsInVzZXJuYW1lIjoiYWRtaW4ifQ.7jgKrU6VKDTq6PVwq2rbagMtirryuawUns_AxkT-nbM"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "username",
+							"value": "aws62211133",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "amy123",
+							"type": "text"
+						},
+						{
+							"key": "salt",
+							"value": "asdasdasdasd",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "127.0.0.1:8080/accounts/4",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8080",
+					"path": [
+						"accounts",
+						"4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "accounts DELETE",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "accounts DELETE",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NTcyNjkxNjQsInVzZXJuYW1lIjoiYWRtaW4ifQ.7jgKrU6VKDTq6PVwq2rbagMtirryuawUns_AxkT-nbM"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "id",
+							"value": "9",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "username",
+							"value": "aws",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "amy123",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "127.0.0.1:8080/accounts/4",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8080",
+					"path": [
+						"accounts",
+						"4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "assignRole",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NTcyNjkxNjQsInVzZXJuYW1lIjoiYWRtaW4ifQ.7jgKrU6VKDTq6PVwq2rbagMtirryuawUns_AxkT-nbM"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "id",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "aws",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "password",
+							"value": "amy123",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "127.0.0.1:8080/accounts/1/roles",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8080",
+					"path": [
+						"accounts",
+						"1",
+						"roles"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "2",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteRole",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NTcyNjkxNjQsInVzZXJuYW1lIjoiYWRtaW4ifQ.7jgKrU6VKDTq6PVwq2rbagMtirryuawUns_AxkT-nbM",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "id",
+							"value": "2",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "127.0.0.1:8080/accounts/1/roles",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8080",
+					"path": [
+						"accounts",
+						"1",
+						"roles"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createAddress",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NTcyNjkxNjQsInVzZXJuYW1lIjoiYWRtaW4ifQ.7jgKrU6VKDTq6PVwq2rbagMtirryuawUns_AxkT-nbM",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "id",
+							"value": "2555",
+							"type": "text"
+						},
+						{
+							"key": "type",
+							"value": "home3",
+							"type": "text"
+						},
+						{
+							"key": "city",
+							"value": "baiyin",
+							"type": "text"
+						},
+						{
+							"key": "postcode",
+							"value": "730900",
+							"type": "text"
+						},
+						{
+							"key": "state",
+							"value": "gansu",
+							"type": "text"
+						},
+						{
+							"key": "street",
+							"value": "dongxingjie 12 hao",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "127.0.0.1:8080/accounts/1/addresses",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8080",
+					"path": [
+						"accounts",
+						"1",
+						"addresses"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "patchAccount",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NTcyNjc3MTcsInVzZXJuYW1lIjoiYWRtaW4ifQ.tFg0Ml86Iim3fkXKU4FkxLDn8lQMgHSZZShrTYR8MB8"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "salt",
+							"value": "asvadsdas",
+							"type": "text"
+						},
+						{
+							"key": "city",
+							"value": "baiyin",
+							"type": "text"
+						},
+						{
+							"key": "id",
+							"value": "21",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "127.0.0.1:8080/accounts/19",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8080",
+					"path": [
+						"accounts",
+						"19"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "authentications",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "cFylUsEAEBsYtlasNAdclqNYEGZCMz",
+						"disabled": true
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "title",
+							"value": "asdasqw1ewq",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "msg",
+							"value": "1243ertfds",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "alert",
+							"value": "123refdsae",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "installid",
+							"value": "d00141cf-2eb7-482e-93b0-8769e9b41e63",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "code",
+							"value": "8010",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "d",
+							"value": "2017-12-12T05%3A07%3A15.562Z",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "Authorization",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NTY4MDk4NDgsInVzZXJuYW1lIjoiYWRtaW4ifQ.eF-n0EDmkci3FwQ_v9WmSaQUkVSiAfvQrwn7XX_lJHw",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "admin",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8080/authentications",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8080",
+					"path": [
+						"authentications"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "patchAddresses",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NTcyNjkxNjQsInVzZXJuYW1lIjoiYWRtaW4ifQ.7jgKrU6VKDTq6PVwq2rbagMtirryuawUns_AxkT-nbM",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "id",
+							"value": "3",
+							"type": "text"
+						},
+						{
+							"key": "type",
+							"value": "office",
+							"type": "text"
+						},
+						{
+							"key": "city",
+							"value": "baiyin",
+							"type": "text"
+						},
+						{
+							"key": "postcode",
+							"value": "730900",
+							"type": "text"
+						},
+						{
+							"key": "state",
+							"value": "gansu",
+							"type": "text"
+						},
+						{
+							"key": "street",
+							"value": "dongxingjie 12 hao",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "127.0.0.1:8080/accounts/1/addresses",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8080",
+					"path": [
+						"accounts",
+						"1",
+						"addresses"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteAddress",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NTcyNjkxNjQsInVzZXJuYW1lIjoiYWRtaW4ifQ.7jgKrU6VKDTq6PVwq2rbagMtirryuawUns_AxkT-nbM",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "id",
+							"value": "3",
+							"type": "text"
+						},
+						{
+							"key": "type",
+							"value": "office",
+							"type": "text"
+						},
+						{
+							"key": "city",
+							"value": "baiyin",
+							"type": "text"
+						},
+						{
+							"key": "postcode",
+							"value": "730900",
+							"type": "text"
+						},
+						{
+							"key": "state",
+							"value": "gansu",
+							"type": "text"
+						},
+						{
+							"key": "street",
+							"value": "dongxingjie 12 hao",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "127.0.0.1:8080/accounts/1/addresses",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8080",
+					"path": [
+						"accounts",
+						"1",
+						"addresses"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "9a521661-3cff-4227-ac37-78a9f43a8b64",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "a1332da8-c99c-4de2-9f18-b5a0d68179f8",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
