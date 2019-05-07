@@ -54,8 +54,7 @@ public class UMSAccountServiceTests {
 
 	@Test
 	public void adminShouldBeAbleToListUsers() throws Exception {
-		this.mockMvc.perform(get("/accounts").header("Authorization", "Bearer " + this.userToken))
-				.andExpect(status().isOk());
+		this.mockMvc.perform(get("/accounts").header("Authorization", this.userToken)).andExpect(status().isOk());
 	}
 
 	@Test
@@ -84,8 +83,8 @@ public class UMSAccountServiceTests {
 
 	@Test
 	public void adminShouldBeAbleToAssignRole() throws Exception {
-		String mvcResult = mockMvc.perform(MockMvcRequestBuilders.delete("/accounts/2/roles"))
-				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+		String mvcResult = mockMvc.perform(MockMvcRequestBuilders.delete("/accounts/2/roles")).andReturn().getResponse()
+				.getContentAsString();
 		System.out.println("Result === " + mvcResult);
 	}
 
@@ -97,13 +96,14 @@ public class UMSAccountServiceTests {
 		String mvcResult = mockMvc
 				.perform(MockMvcRequestBuilders.post("/accounts/2/roles").header("Authorization", this.adminToken)
 						.contentType(MediaType.APPLICATION_FORM_URLENCODED).params(params))
-				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+				.andReturn().getResponse().getContentAsString();
 		System.out.println("Result === " + mvcResult);
 	}
 
 	@Test
 	public void adminShouldBeAbleToAddAddress() throws Exception {
 		final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("id", "333");
 		params.add("type", "home2");
 		params.add("state", "VIC");
 		params.add("city", "Brunswick");
@@ -111,14 +111,22 @@ public class UMSAccountServiceTests {
 		String mvcResult = mockMvc
 				.perform(MockMvcRequestBuilders.post("/accounts/1/addresses").header("Authorization", this.adminToken)
 						.contentType(MediaType.APPLICATION_FORM_URLENCODED).params(params))
-				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+				.andReturn().getResponse().getContentAsString();
 		System.out.println("Result === " + mvcResult);
 	}
 
 	@Test
 	public void adminShouldBeAbleToRemoveAddress() throws Exception {
-		String mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/accounts/1/addresses"))
-				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+		final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("id", "333");
+		params.add("type", "home2");
+		params.add("state", "VIC");
+		params.add("city", "Brunswick");
+		params.add("postcode", "3012");
+		String mvcResult = mockMvc
+				.perform(MockMvcRequestBuilders.post("/accounts/1/addresses").header("Authorization", this.adminToken)
+						.contentType(MediaType.APPLICATION_FORM_URLENCODED).params(params))
+				.andReturn().getResponse().getContentAsString();
 		System.out.println("Result === " + mvcResult);
 	}
 
