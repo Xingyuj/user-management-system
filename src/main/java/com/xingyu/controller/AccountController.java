@@ -3,8 +3,6 @@ package com.xingyu.controller;
 import java.util.List;
 import java.util.Optional;
 
-import javax.ws.rs.core.MediaType;
-
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,6 +11,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,8 +30,6 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.ExampleProperty;
-import springfox.documentation.annotations.ApiIgnore;
 
 @Api(value = "Authenticator", protocols = "http")
 @RestController
@@ -98,12 +95,9 @@ public class AccountController {
 	}
 
 	@ApiOperation(value = "Create Account", notes = "Create Account")
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "body", value = "create new user json body", required = true, dataType = "string", paramType = "body", examples = @io.swagger.annotations.Example(value = {
-					@ExampleProperty(mediaType = "application/json", value = "{username:'username', password:'password', dob:'dob', email:'email',firstname:'firstname',lastname:'lastname'}") })) })
 	@PostMapping("")
 	@RequiresPermissions("userAccount:create")
-	public BaseResponse<UserAccount> createAccount(@ApiIgnore UserAccount account) {
+	public BaseResponse<UserAccount> createAccount(@RequestBody UserAccount account) {
 		try {
 			userAccountService.saveAccount(account);
 		} catch (Exception e) {
@@ -117,12 +111,9 @@ public class AccountController {
 	@ApiResponses({ @ApiResponse(code = 201, message = "Create Success"),
 			@ApiResponse(code = 202, message = "Overwrite Success"), @ApiResponse(code = 401, message = "Unauthorised"),
 			@ApiResponse(code = 500, message = "Internal Server Error") })
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "body", value = "update user json body", required = true, dataType = "string", paramType = "body", examples = @io.swagger.annotations.Example(value = {
-					@ExampleProperty(mediaType = MediaType.APPLICATION_FORM_URLENCODED, value = "{username:'username', password:'password', dob:'dob', email:'email',firstname:'firstname',lastname:'lastname'}") })) })
 	@PutMapping("/{id}")
 	@RequiresPermissions("userAccount:update")
-	public BaseResponse<UserAccount> putAccount(@PathVariable Long id, @ApiIgnore UserAccount account) {
+	public BaseResponse<UserAccount> putAccount(@PathVariable Long id, @RequestBody UserAccount account) {
 		UserAccount savedAccount = userAccountService.findById(id);
 		try {
 			if (savedAccount == null) {
@@ -140,12 +131,9 @@ public class AccountController {
 	}
 
 	@ApiOperation(value = "Patch update Account", notes = "Patch update Account")
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "body", value = "update user json body", required = true, dataType = "string", paramType = "body", examples = @io.swagger.annotations.Example(value = {
-					@ExampleProperty(mediaType = MediaType.APPLICATION_FORM_URLENCODED, value = "{username:'username', password:'password', dob:'dob', email:'email',firstname:'firstname',lastname:'lastname'}") })) })
 	@PatchMapping("/{id}")
 	@RequiresPermissions("userAccount:update")
-	public BaseResponse<UserAccount> patchAccount(@PathVariable Long id, @ApiIgnore UserAccount account) {
+	public BaseResponse<UserAccount> patchAccount(@PathVariable Long id, @RequestBody UserAccount account) {
 		try {
 			UserAccount savedAccount = userAccountService.findById(id);
 			Optional.ofNullable(account.getPassword()).ifPresent(savedAccount::setPassword);
@@ -191,12 +179,9 @@ public class AccountController {
 	 * role processes
 	 */
 	@ApiOperation(value = "Assigne role to user", notes = "Assigne role to user")
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "body", value = "update json body", required = true, dataType = "string", paramType = "body", examples = @io.swagger.annotations.Example(value = {
-					@ExampleProperty(mediaType = MediaType.APPLICATION_FORM_URLENCODED, value = "{id:'id', role:'role'") })) })
 	@PostMapping("/{id}/roles")
 	@RequiresPermissions("userAccount:update")
-	public BaseResponse<UserAccount> assignAccountRole(@PathVariable long id, @ApiIgnore SysRole role) {
+	public BaseResponse<UserAccount> assignAccountRole(@PathVariable long id, @RequestBody SysRole role) {
 		try {
 			UserAccount savedAccount = userAccountService.findById(id);
 			savedAccount.getRoleList().add(role);
@@ -210,7 +195,7 @@ public class AccountController {
 	@ApiOperation(value = "remove a role from user", notes = "remove a role from user")
 	@DeleteMapping("/{id}/roles")
 	@RequiresPermissions("userAccount:update")
-	public BaseResponse<UserAccount> removeAccountRole(@PathVariable long id, @ApiIgnore SysRole role) {
+	public BaseResponse<UserAccount> removeAccountRole(@PathVariable long id, @RequestBody SysRole role) {
 		try {
 			UserAccount savedAccount = userAccountService.findById(id);
 			savedAccount.getRoleList()
@@ -226,11 +211,9 @@ public class AccountController {
 	 * Address processes
 	 */
 	@ApiOperation(value = "Create Address", notes = "Create Address")
-	@ApiImplicitParam(name = "body", value = "update json body", required = true, dataType = "string", paramType = "body", examples = @io.swagger.annotations.Example(value = {
-			@ExampleProperty(mediaType = MediaType.APPLICATION_FORM_URLENCODED, value = "{type:'type', city:'city', postcode:'postcode', state:'state', street:'street'") }))
 	@PostMapping("/{id}/addresses")
 	@RequiresPermissions("userAccount:update")
-	public BaseResponse<UserAccount> createProfileAddress(@PathVariable Long id, @ApiIgnore Address address) {
+	public BaseResponse<UserAccount> createProfileAddress(@PathVariable Long id, @RequestBody Address address) {
 		try {
 			UserAccount account = userAccountService.findById(id);
 			account.getAddresses().add(address);
@@ -242,11 +225,9 @@ public class AccountController {
 	}
 
 	@ApiOperation(value = "Update Address", notes = "Update Address")
-	@ApiImplicitParam(name = "body", value = "update json body", required = true, dataType = "string", paramType = "body", examples = @io.swagger.annotations.Example(value = {
-			@ExampleProperty(mediaType = MediaType.APPLICATION_FORM_URLENCODED, value = "{type:'type', city:'city', postcode:'postcode', state:'state', street:'street'") }))
 	@PatchMapping("/{id}/addresses")
 	@RequiresPermissions("userAccount:update")
-	public BaseResponse<UserAccount> updateProfileAddress(@PathVariable Long id, @ApiIgnore Address address) {
+	public BaseResponse<UserAccount> updateProfileAddress(@PathVariable Long id, @RequestBody Address address) {
 		try {
 			UserAccount account = userAccountService.findById(id);
 			for (Address savedAddress : account.getAddresses()) {
@@ -268,7 +249,7 @@ public class AccountController {
 	@ApiOperation(value = "Delete Address", notes = "Delete Address")
 	@DeleteMapping("/{id}/addresses")
 	@RequiresPermissions("userAccount:update")
-	public BaseResponse<UserAccount> removeProfileAddress(@PathVariable Long id, @ApiIgnore Address address) {
+	public BaseResponse<UserAccount> removeProfileAddress(@PathVariable Long id, @RequestBody Address address) {
 		try {
 			UserAccount account = userAccountService.findById(id);
 			if(account == null) {
