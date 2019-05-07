@@ -95,7 +95,6 @@ public class AccountController {
 		} catch (Exception e) {
 			return BaseResponse.failWithCodeAndMsg(401, e.getMessage());
 		}
-
 	}
 
 	@ApiOperation(value = "Create Account", notes = "Create Account")
@@ -104,7 +103,7 @@ public class AccountController {
 					@ExampleProperty(mediaType = "application/json", value = "{username:'username', password:'password', dob:'dob', email:'email',firstname:'firstname',lastname:'lastname'}") })) })
 	@PostMapping("")
 	@RequiresPermissions("userAccount:create")
-	public BaseResponse<UserAccount> createAccount(UserAccount account) {
+	public BaseResponse<UserAccount> createAccount(@ApiIgnore UserAccount account) {
 		try {
 			userAccountService.saveAccount(account);
 		} catch (Exception e) {

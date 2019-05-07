@@ -37,7 +37,6 @@ public class SwaggerConfiguration {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .groupName("usersAPI")
-                .ignoredParameterTypes(UserAccount.class)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.xingyu.controller"))
                 .paths(PathSelectors.ant("/accounts/**"))
