@@ -78,7 +78,7 @@ public class AccountController {
 			if (account == null) {
 				return BaseResponse.failWithCodeAndMsg(100, "Unable to find account, check your ID input.");
 			}
-			if (account.getRoleList().stream().filter(it -> it.getRole().equals("admin")).findFirst().isPresent()
+			if (userAccountService.findByUsername(username).getRoleList().stream().filter(it -> it.getRole().equals("admin")).findFirst().isPresent()
 					|| account.getUsername().equalsIgnoreCase(username)) {
 				if ("mobile".equalsIgnoreCase(platform)) {
 					account.getAddresses().clear();
