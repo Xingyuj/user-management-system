@@ -1,13 +1,12 @@
 package com.xingyu.service.account;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+
+import javax.servlet.Filter;
 import javax.ws.rs.core.MediaType;
 
 import org.junit.Before;
@@ -15,17 +14,23 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
+import com.xingyu.model.Address;
+import com.xingyu.model.SysRole;
+import com.xingyu.model.UserAccount;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -36,11 +41,13 @@ public class UMSAccountServiceTests {
 	private MockMvc mockMvc;
 	private String adminToken;
 	private String userToken;
+	private ObjectMapper objectMapper;
 
 	@Before
 	public void setup() {
-		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
-
+		DefaultMockMvcBuilder builder = MockMvcBuilders.webAppContextSetup(this.wac);
+		builder.addFilters((Filter) this.wac.getBean("shiroFilter"));
+		this.mockMvc = builder.build();
 		final MultiValueMap<String, String> adminLoginParams = new LinkedMultiValueMap<>();
 		adminLoginParams.add("username", "admin");
 		adminLoginParams.add("password", "admin");
@@ -50,120 +57,133 @@ public class UMSAccountServiceTests {
 		userLoginParams.add("username", "ethan");
 		userLoginParams.add("password", "ethan");
 		this.userToken = this.fetchJWTToken(userLoginParams);
+		this.objectMapper = new MappingJackson2HttpMessageConverter().getObjectMapper();
 	}
 
 	@Test
 	public void adminShouldBeAbleToListUsers() throws Exception {
-		this.mockMvc.perform(get("/accounts").header("Authorization", this.userToken)).andExpect(status().isOk());
+		String result = this.mockMvc.perform(get("/accounts").header("Authorization", this.adminToken))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.data").exists()).andReturn().getResponse()
+				.getContentAsString();
+		System.out.println("adminShouldBeAbleToListUsers: results: " + result);
 	}
 
 	@Test
 	public void adminShouldBeAbleToCreateUser() throws Exception {
-		final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-		params.add("username", "John");
-		params.add("password", "John123");
-		params.add("email", "John@gmail.com");
-		params.add("firstname", "John");
-		params.add("lastname", "Snow");
-		params.add("dob", "1888-2-2");
+		UserAccount account = new UserAccount();
+		account.setId(999l);
+		account.setUsername("john");
+		account.setFirstname("john");
+		account.setLastname("snow");
+		account.setEmail("john@gmail.com");
+		account.setPassword("john123");
 		ResultActions action = this.mockMvc
 				.perform(MockMvcRequestBuilders.post("/accounts").header("Authorization", this.adminToken)
-						.contentType(MediaType.APPLICATION_FORM_URLENCODED).params(params));
-		System.out.println(action.andReturn().getResponse().getContentAsString());
-	}
-
-	@Test
-	public void adminShouldBeAbleToReadUser() throws Exception {
-		String mvcResult = mockMvc
-				.perform(
-						MockMvcRequestBuilders.get("/accounts/1?platform=web").header("Authorization", this.adminToken))
-				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
-		System.out.println("Result === " + mvcResult);
-	}
-
-	@Test
-	public void adminShouldBeAbleToAssignRole() throws Exception {
-		String mvcResult = mockMvc.perform(MockMvcRequestBuilders.delete("/accounts/2/roles")).andReturn().getResponse()
-				.getContentAsString();
-		System.out.println("Result === " + mvcResult);
-	}
-
-	@Test
-	public void adminShouldBeAbleToRemoveRole() throws Exception {
-		final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-		params.add("role", "user");
-		params.add("id", "2");
-		String mvcResult = mockMvc
-				.perform(MockMvcRequestBuilders.post("/accounts/2/roles").header("Authorization", this.adminToken)
-						.contentType(MediaType.APPLICATION_FORM_URLENCODED).params(params))
-				.andReturn().getResponse().getContentAsString();
-		System.out.println("Result === " + mvcResult);
-	}
-
-	@Test
-	public void adminShouldBeAbleToAddAddress() throws Exception {
-		final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-		params.add("id", "333");
-		params.add("type", "home2");
-		params.add("state", "VIC");
-		params.add("city", "Brunswick");
-		params.add("postcode", "3012");
-		String mvcResult = mockMvc
-				.perform(MockMvcRequestBuilders.post("/accounts/1/addresses").header("Authorization", this.adminToken)
-						.contentType(MediaType.APPLICATION_FORM_URLENCODED).params(params))
-				.andReturn().getResponse().getContentAsString();
-		System.out.println("Result === " + mvcResult);
-	}
-
-	@Test
-	public void adminShouldBeAbleToRemoveAddress() throws Exception {
-		final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-		params.add("id", "333");
-		params.add("type", "home2");
-		params.add("state", "VIC");
-		params.add("city", "Brunswick");
-		params.add("postcode", "3012");
-		String mvcResult = mockMvc
-				.perform(MockMvcRequestBuilders.post("/accounts/1/addresses").header("Authorization", this.adminToken)
-						.contentType(MediaType.APPLICATION_FORM_URLENCODED).params(params))
-				.andReturn().getResponse().getContentAsString();
-		System.out.println("Result === " + mvcResult);
+						.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(account)));
+		System.out.println(
+				"adminShouldBeAbleToCreateUser: results: " + action.andReturn().getResponse().getContentAsString());
+		action.andExpect(status().isOk()).andExpect(jsonPath("$.data").exists());
 	}
 
 	@Test
 	public void adminShouldBeAbleToDeleteUser() throws Exception {
-		String mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/accounts/2")).andReturn().getResponse()
+		String mvcResult = mockMvc
+				.perform(MockMvcRequestBuilders.delete("/accounts/999").header("Authorization", this.adminToken))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.data").exists()).andReturn().getResponse()
 				.getContentAsString();
-		System.out.println("Result === " + mvcResult);
+		System.out.println("adminShouldBeAbleToDeleteUser Result === " + mvcResult);
+	}
+
+	@Test
+	public void adminShouldBeAbleToReadUser() throws Exception {
+		ResultActions action = this.mockMvc.perform(
+				MockMvcRequestBuilders.get("/accounts/1?platform=web").header("Authorization", this.adminToken));
+		System.out.println(
+				"adminShouldBeAbleToReadUser: results: " + action.andReturn().getResponse().getContentAsString());
+		action.andExpect(status().isOk()).andExpect(jsonPath("$.data").exists());
+	}
+
+	@Test
+	public void adminShouldBeAbleToRemoveRole() throws Exception {
+		SysRole role = new SysRole();
+		role.setId(2l);
+		role.setRole("user");
+		String mvcResult = mockMvc
+				.perform(MockMvcRequestBuilders.delete("/accounts/1/roles").header("Authorization", this.adminToken)
+						.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(role)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.data").exists()).andReturn().getResponse()
+				.getContentAsString();
+		System.out.println("adminShouldBeAbleToRemoveRole Result === " + mvcResult);
+	}
+
+	@Test
+	public void adminShouldBeAbleToAssignRole() throws Exception {
+		SysRole role = new SysRole();
+		role.setId(2l);
+		role.setRole("user");
+		String mvcResult = mockMvc
+				.perform(MockMvcRequestBuilders.post("/accounts/1/roles").header("Authorization", this.adminToken)
+						.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(role)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.data").exists()).andReturn().getResponse()
+				.getContentAsString();
+		System.out.println("adminShouldBeAbleToAssignRole Result === " + mvcResult);
+	}
+
+	@Test
+	public void adminShouldBeAbleToAddAddress() throws Exception {
+		Address address = new Address();
+		address.setId(1l);
+		address.setType("home2");
+		address.setCity("baiyin");
+		String mvcResult = mockMvc
+				.perform(MockMvcRequestBuilders.post("/accounts/2/addresses").header("Authorization", this.adminToken)
+						.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(address)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.data").exists()).andReturn().getResponse()
+				.getContentAsString();
+		System.out.println("adminShouldBeAbleToAddAddress Result === " + mvcResult);
+	}
+
+	@Test
+	public void adminShouldBeAbleToRemoveAddress() throws Exception {
+		Address address = new Address();
+		address.setId(1l);
+		address.setType("home2");
+		address.setCity("baiyin");
+		String mvcResult = mockMvc
+				.perform(MockMvcRequestBuilders.delete("/accounts/2/addresses").header("Authorization", this.adminToken)
+						.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(address)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.data").exists())
+				.andReturn().getResponse().getContentAsString();
+		System.out.println("adminShouldBeAbleToRemoveAddress Result === " + mvcResult);
 	}
 
 	@Test
 	public void userShouldBeAbleToReadOwnProfile() throws Exception {
-		this.mockMvc.perform(get("/accounts/2?platform=web").header("Authorization", this.userToken))
-				.andExpect(status().isOk());
-	}
-
-	@Test
-	public void userShouldBeAbleToDeleteOwnProfile() throws Exception {
-		this.mockMvc.perform(delete("/accounts/2").header("Authorization", this.userToken)).andExpect(status().isOk());
-	}
-
-	@Test
-	public void userShouldNotBeAbleToListUsers() throws Exception {
-		this.mockMvc.perform(get("/accounts").header("Authorization", this.userToken))
-				.andExpect(jsonPath("$.data").doesNotExist());
+		ResultActions action = this.mockMvc.perform(
+				MockMvcRequestBuilders.get("/accounts/2?platform=mobile").header("Authorization", this.userToken));
+		System.out.println(
+				"adminShouldBeAbleToCreateUser: results: " + action.andReturn().getResponse().getContentAsString());
+		action.andExpect(status().isOk()).andExpect(jsonPath("$.data").exists());
 	}
 
 	@Test
 	public void userShouldNotBeAbleToReadOtherUsersProfile() throws Exception {
-		this.mockMvc.perform(get("/accounts/1").header("Authorization", this.userToken))
-				.andExpect(jsonPath("$.data").doesNotExist());
+		String mvcResult = mockMvc
+				.perform(MockMvcRequestBuilders.get("/accounts/1?platform=mobile").header("Authorization",
+						this.userToken))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.data").doesNotExist()).andReturn().getResponse()
+				.getContentAsString();
+		System.out.println("userShouldNotBeAbleToReadOtherUsersProfile Result === " + mvcResult);
 	}
 
 	@Test
 	public void userShouldNotBeAbleToDeleteOtherUsersProfile() throws Exception {
-		this.mockMvc.perform(delete("/accounts/1").header("Authorization", this.userToken))
-				.andExpect(jsonPath("$.data").doesNotExist());
+		String mvcResult = mockMvc
+				.perform(MockMvcRequestBuilders.delete("/accounts/1?platform=web").header("Authorization",
+						this.userToken))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.data").doesNotExist()).andReturn().getResponse()
+				.getContentAsString();
+		System.out.println("userShouldNotBeAbleToDeleteOtherUsersProfile Result === " + mvcResult);
 	}
 
 	private String fetchJWTToken(MultiValueMap<String, String> params) {
@@ -177,25 +197,6 @@ public class UMSAccountServiceTests {
 			e.printStackTrace();
 		}
 		return JsonPath.parse(response).read("$.data").toString();
-	}
-
-	private String buildUrlEncodedFormEntity(String... params) {
-		if ((params.length % 2) > 0) {
-			throw new IllegalArgumentException("Need to give an even number of parameters");
-		}
-		StringBuilder result = new StringBuilder();
-		for (int i = 0; i < params.length; i += 2) {
-			if (i > 0) {
-				result.append('&');
-			}
-			try {
-				result.append(URLEncoder.encode(params[i], StandardCharsets.UTF_8.name())).append('=')
-						.append(URLEncoder.encode(params[i + 1], StandardCharsets.UTF_8.name()));
-			} catch (UnsupportedEncodingException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		return result.toString();
 	}
 
 }
