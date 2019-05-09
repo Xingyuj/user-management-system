@@ -2,8 +2,9 @@ package com.xingyu.auth;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
+
 import javax.servlet.Filter;
+
 import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
 import org.apache.shiro.mgt.DefaultSubjectDAO;
 import org.apache.shiro.mgt.SecurityManager;
@@ -72,13 +73,4 @@ public class ShiroConfig {
 		return authorizationAttributeSourceAdvisor;
 	}
 	
-	@Bean(name="simpleMappingExceptionResolver")
-	public SimpleMappingExceptionResolver
-	createSimpleMappingExceptionResolver() {
-		SimpleMappingExceptionResolver r = new SimpleMappingExceptionResolver();
-		r.setDefaultErrorView("error");
-		r.setExceptionAttribute("ex");
-		return r;
-	}
-
 }
